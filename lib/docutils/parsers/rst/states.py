@@ -105,6 +105,12 @@ __docformat__ = 'reStructuredText'
 
 import sys
 import re
+
+#fix lib path error
+import os
+CURPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..", "..")
+sys.path.insert(0, os.path.join(CURPATH))
+
 import roman
 from types import FunctionType, MethodType
 from docutils import nodes, statemachine, utils, urischemes

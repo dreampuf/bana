@@ -5,7 +5,7 @@
 
 import time
 from datetime import datetime
-from google.appengine.api import memcache
+from google.appengine.api import memcache as gmemcache
 
 class BaseCache(object):
     def __init__(self, timeout=0):
@@ -60,6 +60,7 @@ class LocalCache(BaseCache):
         self._cache = {}
         self._expire = {} 
         self._cull_frequency = cull_frequency
+        self._delete_count = max_entrys/cull_frequency
         self.max_entrys = max_entrys
         super(LocalCache, self).__init__(*args, **kw)
         
@@ -103,10 +104,9 @@ class LocalCache(BaseCache):
                 self._expire.clear()
             else:
                 sorted_list = sorted(self._expire.items(), dict_cmp)
-                delete_count = clen/self._cull_frequency
-                for i in xrange(delete_count):
+                for i in xrange(self._delete_count):
                     self._cache.pop(sorted_list[i][0], None)
-                    self._expire,pop(sorted_list[i][0], None)
+                    self._expire.pop(sorted_list[i][0], None)
                     
 locache = LocalCache(timeout=300) 
 
@@ -119,47 +119,53 @@ class MemCache(BaseCache):
 
     def get(self, key, default=None, namespace=None):
         namespace = self.namespace if namespace is None else namespace
-        ret = memcache.get(key, namespace=namespace)
+        ret = gmemcache.get(key, namespace=namespace)
         if ret is None:
             return default
         return ret
 
     def get_multi(self, keys, key_prefix="", namespace=None):
         namespace = self.namespace if namespace is None else namespace
-        return memcache.get_multi(keys, key_prefix, namespace)
+        return gmemcache.get_multi(keys, key_prefix, namespace)
 
     def set(self, key, val, timeout=None, namespace=None):
         namespace = self.namespace if namespace is None else namespace
         timeout = self.default_timeout if timeout is None else timeout
-        return memcache.set(key, val, timeout, namespace=namespace)
+        return gmemcache.set(key, val, timeout, namespace=namespace)
 
     def set_multi(self, mapping, timeout=None, key_prefix="", namespace=None): 
         namespace = self.namespace if namespace is None else namespace
         timeout = self.default_timeout if timeout is None else timeout
-        return memcache.set_multi(mapping, timeout, key_prefix, namespace=namespace)
+        return gmemcache.set_multi(mapping, timeout, key_prefix, namespace=namespace)
 
     def delete(self, key, namespace=None):
         namespace = self.namespace if namespace is None else namespace
-        return memcache.delete(key, namespace=namespace)
+        return gmemcache.delete(key, namespace=namespace)
 
     def delete_multi(self, keys, key_prefix="", namespace=None):
         namespace = self.namespace if namespace is None else namespace
-        return memcache.delete_multi(keys, key_prefix=key_prefix, namespace=namespace)
+        return gmemcache.delete_multi(keys, key_prefix=key_prefix, namespace=namespace)
 
     def get_many(self, keys, namespace=None):
         return self.get_multi(keys, namespace=namespace)
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         namespace = self.namespace if namespace is None else namespace
-        return memcache.incr(key, delta, namespace, initial_value)
+        return gmemcache.incr(key, delta, namespace, initial_value)
 
     def decr(self, key, delta=1, namespace=None, initial_value=None):
         namespace = self.namespace if namespace is None else namespace
-        return memcache.decr(key, delta, namespace, initial_value)
+        return gmemcache.decr(key, delta, namespace, initial_value)
 
 memcache = MemCache()
 
+class CacheProperty(object):
+    def __init__(self, fget):
+        self.fget = fget
+        self.__doc__ = fget.__doc__
 
-
+    def __get__(self, obj, objtype=None):
+        obj.__dict__[self.fget.__name__] = prop = self.fget(obj) 
+        return prop
 
 
