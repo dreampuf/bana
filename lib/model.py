@@ -5,6 +5,7 @@
 
 import logging
 import cPickle as pickle
+from hashlib import md5
 
 from google.appengine.ext import db
 from google.appengine.ext.db import Model as DBModel
@@ -70,6 +71,10 @@ class _Pager(object):
         self.next = (index + 1 > last) and 0 or (index + 1)
         self.last = last
 
+def func2str(func):
+    fcode = func.func_code
+    return md5("%s%s" % (fcode.co_code, fcode.co_consts)).hexdigest()
+
 class BaseModel(DBModel):
     #def __init__(self, parent=None, key_name=None, _app=None, **kwds):
     #    DBModel.__init__(self, parent=None, key_name=None, _app=None, **kwds)
@@ -104,8 +109,7 @@ class BaseModel(DBModel):
 
     @classmethod
     def fetch(cls, p, plen = 20, fun=None):
-        key = "" if fun == None else md5pro(fun.func_code.co_consts, fun.func_code.co_code)
-        total = cls.total(key, fun)
+        total = cls.total(fun)
         n = total / plen
         if total % plen != 0:
             n = n + 1
@@ -117,12 +121,15 @@ class BaseModel(DBModel):
         return _Pager(results, total, p, n)
 
     @classmethod
-    def total(cls, key="", fun=None):
-        tname = "tablecounter_%s::%s" % (cls.__name__, key)
+    def total(cls, func=None):
+        if func:
+            tname = "tablecounter_%s::%s" % (cls.__name__, func2str(func)) 
+        else:
+            tname = "tablecounter_%s" % (cls.__name__)
+
         tval = Setting.get(tname, useMemoryCache=False)
         if tval == None:
-            logging.info("beLongtime")
+            logging.info("calc the %s total count" % cls.__name__)
             tval = cls.all().count(None) if fun == None else fun(cls.all()).count(None)
             Setting.set(tname, tval, False)
-        #tval = cls.all().count(None) if fun == None else fun(cls.all()).count(None)
         return tval
