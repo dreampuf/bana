@@ -3,7 +3,9 @@
 # discription: setting 
 # author: dreampuf
 
+import logging
 from cache import memcache
+from model import Setting
 
 class CommentStatus(object):
     DISENABLE = "disenable"
@@ -18,10 +20,10 @@ class _ConfigProperty(Event):
         self.usememorycache = useMemoryCache
 
     def __get__(self, instance, klass):
-        return Model.Setting.getValue(self.name, self.default, self.usememorycache)
+        return Setting.get(self.name, self.default, self.usememorycache)
 
     def __set__(self, instance, value):
-        Model.Setting.setValue(self.name, value, self.usememorycache)
+        Setting.set(self.name, value, self.usememorycache)
 
 
 
