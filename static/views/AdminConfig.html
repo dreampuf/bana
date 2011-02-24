@@ -1,0 +1,194 @@
+{% extends "AdminBase.html" %}
+{% block maincontent %}
+<div class="box"><!--
+<div class="cell">
+<span class="fade"><a href="{{ baseurl }}">{{ blog_title }}</a> <span class="chevron">&nbsp;›&nbsp;</span> <a href="/admin">后台</a> <span class="chevron">&nbsp;›&nbsp;</span> 基本设置</span>
+</div>-->
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#posturl").focus(function(){
+		$("#posturlshow").show();
+	}).focusout(function(){
+		$("#posturlshow").hide();
+	}).next().hide();
+});
+</script>
+<div class="inner">
+<form method="POST" action="{{ baseurl }}/admin/config">
+<fieldset>
+	<legend>基本信息管理</legend>
+    <table cellpadding="5" cellspacing="0" border="0">
+    <tbody><tr>
+        <td width="100" align="right">
+            博客名称
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="blogtitle" value="{{ blogtitle }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            博客描述
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="blogsubtitle" value="{{ blogsubtitle }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            站长名称
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="author" value="{{ author }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            站点域名
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="domain" value="{{ domain }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            站点编码
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="charset" value="{{ charset }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            文章连接模版
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="posturl" id="posturl" value="{{ posturl }}">
+            <div id="posturlshow" style="float: left;position: relative;">
+                <ul>
+                  <li>%category% : 分类URL</li>
+                  <li>%year% : 年</li>
+                  <li>%month% : 月</li>
+                  <li>%day% : 日</li>
+                  <li>%title% : 文章标题</li>
+                  <li>%url% : 文章URL别名</li>
+                  <li>%author% : 作者</li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            时区
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="localtimezone" value="{{ localtimezone }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            Feed地址
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="feed" value="{{ feed }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            Feed条数
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="feednumber" value="{{ feednumber }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            Feed文章显示摘要
+        </td>
+        <td width="200" align="left">
+             <input name="feedshowpre" type="checkbox" value="True" {%if feedshowpre %}checked="checked"{%endif%} />
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            PubSubHubbub
+        </td>
+        <td width="200" align="left">
+            <textarea class="mlt" name="hub">{{ hub }}</textarea>
+            <span class="fade">用于更新feed时主动通知订阅者,<a href="http://code.google.com/p/pubsubhubbub/">关于PubSubHubbub</a><br />每行一个</span>
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            首页显示数量
+        </td>
+        <td width="200" align="left">
+            <input type="text" class="sl" name="indexnumber" value="{{ indexnumber }}">
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            首页文章显示摘要
+        </td>
+        <td width="200" align="left">
+             <input name="indexshowpre" type="checkbox" value="True" {%if indexshowpre%}checked="checked"{%endif%} />
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            全局评论设置
+        </td>
+        <td width="200" align="left">
+            <label><input type="radio" name="commentstatus" value="enable" {%if commentstatus=="enable"%}checked="checked"{%endif%}/>启用</label>
+            <label><input type="radio" name="commentstatus" value="useronly" {%if commentstatus=="useronly"%}checked="checked"{%endif%}/>仅注册用户</label>
+            <label><input type="radio" name="commentstatus" value="disenable" {%if commentstatus=="disenable"%}checked="checked"{%endif%}/>禁用</label>
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            评论需审核
+        </td>
+        <td width="200" align="left">
+            <input name="commentneedcheck" type="checkbox" value="True" {%if commentneedcheck%}checked="checked"{%endif%} />
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            页头脚本
+        </td>
+        <td width="200" align="left">
+            <textarea class="ml" name="headlink">{{ headlink }}</textarea>
+            <span class="fade">仅支持css和js设置<br />每行一个</span>
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            页脚
+        </td>
+        <td width="200" align="left">
+            <textarea class="ml" name="footer">{{ footer }}</textarea>
+            <div class="sep5"></div>
+            <span class="fade">可包含HTML代码</span>
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+            语言
+        </td>
+        <td width="200" align="left">
+            <select name="l10n"><option value="en" selected="selected">English</option><option value="zh-Hans">简体中文</option></select>
+        </td>
+    </tr>
+    <tr>
+        <td width="100" align="right">
+        </td>
+        <td width="200" align="left">
+            <input type="submit" value="保存" class="super normal button">
+        </td>
+    </tr>
+</tbody></table>
+</fieldset>
+</form>
+</div>
+</div>
+{% endblock %}
