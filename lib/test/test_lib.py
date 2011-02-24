@@ -10,7 +10,7 @@ import os, unittest, logging, time
 from cache import LocalCache, MemCache, CacheProperty
 from docutils.core import publish_parts
 from google.appengine.api import urlfetch
-
+from lib import config
 
 class CacheTest(unittest.TestCase):
 
@@ -105,6 +105,15 @@ class DocutilsTest(unittest.TestCase):
         self.assertTrue(dd["body"].find(u"<h2>是的吗?</h2>") != -1)
 
 
+
+class ConfigTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_config(self):
+        self.assertTrue(not config.CURPATH is None)
+        #logging.info(config.CURPATH)
 
 
 class AppEngineAPITest(unittest.TestCase):

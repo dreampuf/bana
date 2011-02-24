@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# discription: setting 
+# discription: config 
 # author: dreampuf
 
+import os, sys
 import logging
 from cache import memcache
 from model import Setting
+import tenjin
 
 class CommentStatus(object):
-    DISENABLE = "disenable"
-    ENABLE = "enable"
-    USERONLY = "useronly"
+    DISENABLE = 0
+    ENABLE = 1
+    USERONLY = 2
+    NEEDCHECK = 4
+    
 
-class _ConfigProperty(Event):
+class _ConfigProperty(object):
 
     def __init__(self, name, default=None, useMemoryCache=True):
         self.name = "config_%s" % name
@@ -24,6 +28,63 @@ class _ConfigProperty(Event):
 
     def __set__(self, instance, value):
         Setting.set(self.name, value, self.usememorycache)
+
+
+
+VERSION = 2.0
+CURPATH = os.path.join(os.path.split(os.path.abspath(sys.argv[0]))[0], "..")
+CHARSET = "utf-8"
+LANGUAGE = "zh-CN"
+
+APPID = os.environ["APPLICATION_ID"]
+DOMAIN = _ConfigProperty("DOMAIN", os.environ['HTTP_HOST'])                       #站点域名
+
+@property
+def BASEURL():
+    return "http://%s" % (DOMAIN)
+
+LOCAL_TIMEZONE = _ConfigProperty("LOCAL_TIMEZONE", 8)                               #时区
+TITLE = _ConfigProperty("TITLE", "bana")                                          #站点名称
+SUBTITLE = _ConfigProperty("SUBTITLE", "an other blog")                           #站点简介
+DESCRIPTION = _ConfigProperty("DESCRIPTION", "this descript in feed")             #FEED中的描述
+DATE_FORMAT = _ConfigProperty("DATE_FORMAT", "%Y-%m-%d")
+DATETIME_FORMAT = _ConfigProperty("DATETIME_FORMAT", "%Y-%m-%d %H:%M:%S")
+DATEMINUTE_FORMAT = _ConfigProperty("DATEMINUTE_FORMAT", "%Y-%m-%d %H:%M")
+
+@property
+def FEEDURL():
+    return "%s/%s/" % (BASEURL, FEED_SRC)
+
+FEED_SRC = _ConfigProperty("FEED_SRC", "feed")
+FEED_NUMBER = _ConfigProperty("DIGIT_FEED_NUMBER_", 20)
+FEED_SUMMARY = _ConfigProperty("FEED_SUMMARY", False)
+FEED_COMMENT_COUNT = _ConfigProperty("FEED_COMMENT_COUNT", 5) 
+HUB_SRC = _ConfigProperty("HUB_SRC", ["http://pubsubhubbub.appspot.com/"])
+XML_RPC_ENDPOINT = _ConfigProperty("HUB_SRC", ['http://blogsearch.google.com/ping/RPC2', 'http://rpc.pingomatic.com/', 'http://ping.baidu.com/ping/RPC2'])
+
+INDEX_POST_COUNT = _ConfigProperty("INDEX_POST_COUNT", 10)
+INDEX_SUMMARY = _ConfigProperty("INDEX_SUMMARY", True)
+POST_PAGE_COUNT = _ConfigProperty("POST_PAGE_COUNT", 10)
+COMMENT_PAGE_COUNT = _ConfigProperty("COMMENT_PAGE_COUNT", 10)
+LAST_COMMENT_COUNT = _ConfigProperty("LAST_COMMENT_COUNT", 20)
+LAST_COMMENT_LENGTH = _ConfigProperty("LAST_COMMENT_LENGTH", 20)
+
+POST_CACHE_TIME = _ConfigProperty("POST_CACHE_TIME", 600)
+FEED_CACHE_TIME = _ConfigProperty("FEED_CACHE_TIME", 600)
+SITEMAP_CACHE_TIME = _ConfigProperty("SITEMAP_CACHE_TIME", 600)
+
+FOOTER_HTML = _ConfigProperty("FOOTER_HTML", "")
+HEAD_LINK = _ConfigProperty("HEAD_LINK", ["/css/style.css", "/js/common.js"])
+POST_URL = _ConfigProperty("POST_URL", "%year%/%month%/%url%.html")
+
+COMMENT_STATUS = _ConfigProperty("COMMENT_STATUS", CommentStatus.ENABLE)
+
+RECAPTCHA_PUBLIC_KEY = _ConfigProperty("RECAPTCHA_PUBLIC_KEY","6Le-a78SAAAAAPBtWkwwMmwsk21LWhA-WySPzY5o")
+RECAPTCHA_PRIVATE_KEY = _ConfigProperty("RECAPTCHA_PRIVATE_KEY", "6Le-a78SAAAAAPpK1K0hm5FuyOBU7KPJmJxxMjas")
+GOOGLE_ANALYTICS_ID = _ConfigProperty("GOOGLE_ANALYTICS_ID", "")
+
+
+tplengine = tenjin.Engine(path=["views"])  
 
 
 

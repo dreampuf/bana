@@ -70,6 +70,7 @@ import django.utils.simplejson
 # fix by dreampuf
 CURPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.join(CURPATH))
+#map(sys.stdout.write, sys.path)
 
 from xml.sax.saxutils import unescape
 from google.appengine.ext import webapp

@@ -11,6 +11,7 @@ from google.appengine.ext import db
 from google.appengine.ext.db import Model as DBModel
 
 from cache import memcache
+from common import memcached
 
 TABLE_COUNT_TAG_PRE = "tablecount"
 _settingcache = {}
@@ -156,76 +157,83 @@ class BaseModel(DBModel):
             Setting.set(tname, tval, False)
         return tval
 
+
+def toBlob(val):
+    return db.Blob(val)
+
+def toLink(val):
+    return db.Link(val)
+
+def toEmail(val):
+    return db.Email(val)
+
 class User(BaseModel):
-    username = db.StringProperty()
-    password = db.StringProperty()
+    nickname = db.StringProperty(required=True)
+    password = db.StringProperty(indexed=False)
     created = db.DateTimeProperty(auto_now_add=True)
-    lastip = db.StringProperty()
+
+    lastip = db.StringProperty(indexed=False)
     lastlogin = db.DateTimeProperty()
 
-    email = db.EmailProperty()
-
-    def setEmail(self, val):
-        self.email = db.Email(val)
+    #email = db.EmailProperty() #key_name as email
 
 class Category(BaseModel):
     ishidden = db.BooleanProperty(default=False)
 
     title = db.StringProperty()
-    description = db.StringProperty()
+    description = db.StringProperty(indexed=False)
     order = db.IntegerProperty(default=0)
-    url = db.StringProperty()
+    parent = db.ReferenceProperty(Category, collection_name="children")
+    #url = db.StringProperty()    #key_name as url
 
 class Tag(BaseModel):
-    title = db.StringProperty()
-    description = db.StringProperty()
-
+    # key_name as title
+    count = db.IntegerProperty(default=0)
+ 
     @property
     def posts(self):
-        if not hasattr(self, "_posts"):
-            self._posts = [i.post for i in self._posts.fetch(1000)]
-        return self._posts
+        return Post.all().filter("tags =", self.key().name()) 
 
-    @property
-    def postslen(self):
-        '''return a integer of post, the post's tags porperty used self'''
-        if not hasattr(self, "_postlen"):
-            self._postlen = tags_posts.all().filter("tag =", self.key()).count()
-        return self._postlen
+    @classmethod
+    def IncrTags(tags):
+        #TODO 增加Tag
+
+    @classmethod
+    def DecrTags(tags):
+        #TODO 去掉Tag
 
 class PostStatus(object):
-    NORMAL = "normal"
-    HIDDEN = "hidden"
-    TOP = "top"
-    PAGE = "page"
+    NORMAL = 0
+    HIDDEN = 1
+    TOP = 2
+    PAGE = 3
+
+class PostFormat(object):
+    PLAIN = 0               #like HTML, txt
+    MARKDOWN = 1            #markdown
+    RST = 2                 #ReStructuredText
+    UBB = 3                 #UBB
 
 class Post(BaseModel):
+    """ url 只是存在一个可能的别名,实际匹配时则直接匹配realurl(现在存放在key_name中) """
+
+    #realurl = db.StringProperty()   #key_name as realurl
     status = db.StringProperty(default=PostStatus.NORMAL)
-    realurl = db.StringProperty()
     enablecomment = db.BooleanProperty(default=True)
+    format = db.IntegerProperty(default=PostFormat.PLAIN, indexed=False) # 解析格式
 
     category = db.ReferenceProperty(Category, collection_name="posts")
     author = db.ReferenceProperty(User, collection_name="posts")
     title = db.StringProperty()
-    created = db.DateTimeProperty()
-    url = db.StringProperty()
+    created = db.DateTimeProperty(auto_now_add=True)
+    modify = db.DateTimeProperty(auto_now_add=True)
+    url = db.StringProperty() 
+    keyword = db.StringListProperty() 
     content = db.TextProperty()
-    precontent = db.TextProperty()
     views = db.IntegerProperty(default=0)
 
-    @property
-    def tags(self):
-        if not hasattr(self, "_ptags"):
-            self._ptags = [i.tag for i in self._tags.fetch(1000)]
-        return self._ptags
+    tags = db.StringListProperty()
 
-    @classmethod
-    def SearchableProperties(cls):
-        return [['title', 'content'], ['title'], search.ALL_PROPERTIES]
-
-class tags_posts(BaseModel):
-    tag = db.ReferenceProperty(Tag, collection_name="_posts")
-    post = db.ReferenceProperty(Post, collection_name="_tags")
 
 class CommentType(object):
     COMMENT = "comment"
@@ -245,12 +253,6 @@ class Comment(BaseModel):
     website = db.LinkProperty()
     email = db.EmailProperty()
     hascheck = db.BooleanProperty(default=True)
-
-    def setWebsite(self, val):
-        self.website = db.Link(val)
-
-    def setEmail(self, val):
-        self.email = db.Email(val)
 
 class Attachment(BaseModel):
     beuse = db.ReferenceProperty(Post, collection_name="attachments")
