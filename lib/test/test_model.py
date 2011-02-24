@@ -38,7 +38,7 @@ class BaseModelTest(unittest.TestCase):
         
     def testFetch(self):
         index = 1 
-        ls = TempTable.fetch(index, 20)
+        ls = TempTable.fetch_page(index, 20)
         logging.info(ls)
         for n, i in enumerate(ls.data):
             self.assertEquals(i.tkey, n)
@@ -47,7 +47,7 @@ class BaseModelTest(unittest.TestCase):
         self.assertTrue(not cursor is None)
         logging.info(cursor)
         
-        self.assertEquals(TempTable.fetch(10).data[0].tkey, 180)
+        self.assertEquals(TempTable.fetch_page(10).data[0].tkey, 180)
 
         als = TempTable.cursorfetch(cursor)
         for n, i in enumerate(als):
@@ -62,7 +62,7 @@ class BaseModelTest(unittest.TestCase):
 
     def testDelete(self):
         befor = TempTable.total()
-        i = TempTable.fetch(1, 1)
+        i = TempTable.fetch_page(1, 1)
         i.data[0].delete() 
         self.assertEquals(befor - 1, TempTable.total())
 

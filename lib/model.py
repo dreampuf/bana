@@ -108,7 +108,7 @@ class BaseModel(DBModel):
         db.delete(vals)
 
     @classmethod
-    def fetch(cls, p, plen = 20, fun=None):
+    def fetch_page(cls, p, plen = 20, fun=None):
         total = cls.total(fun)
         n = total / plen
         if total % plen != 0:
