@@ -197,10 +197,12 @@ class Tag(BaseModel):
     @classmethod
     def IncrTags(tags):
         #TODO 增加Tag
+        pass
 
     @classmethod
     def DecrTags(tags):
         #TODO 去掉Tag
+        pass
 
 class PostStatus(object):
     NORMAL = 0

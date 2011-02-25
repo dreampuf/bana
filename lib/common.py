@@ -7,6 +7,14 @@ import cgi, os, logging, sys
 import datetime
 import wsgiref.handlers
 
+#from config import CURPATH
+import tenjin
+import tenjin.gae; tenjin.gae.init()
+from tenjin.helpers import escape, to_str
+
+pjoin = os.path.join
+
+tplengine = tenjin.Engine(path=[pjoin("static", "views")], cache=tenjin.MemoryCacheStorage(), preprocess=True)  
 
 ZERO_TIME_DELTA = datetime.timedelta(0)
 class LocalTimezone(datetime.tzinfo):

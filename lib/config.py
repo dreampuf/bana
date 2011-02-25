@@ -7,7 +7,6 @@ import os, sys
 import logging
 from cache import memcache
 from model import Setting
-import tenjin
 
 class CommentStatus(object):
     DISENABLE = 0
@@ -28,7 +27,6 @@ class _ConfigProperty(object):
 
     def __set__(self, instance, value):
         Setting.set(self.name, value, self.usememorycache)
-
 
 
 VERSION = 2.0
@@ -84,7 +82,6 @@ RECAPTCHA_PRIVATE_KEY = _ConfigProperty("RECAPTCHA_PRIVATE_KEY", "6Le-a78SAAAAAP
 GOOGLE_ANALYTICS_ID = _ConfigProperty("GOOGLE_ANALYTICS_ID", "")
 
 
-tplengine = tenjin.Engine(path=["views"])  
 
 
 

@@ -547,7 +547,7 @@ class RequestHandler(object):
 
     def handle_exception(self, exception):
 
-        logging.error(format_exc())
+        logging.error(exception)
         self.error(500)
         raise
 
