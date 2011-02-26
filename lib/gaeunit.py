@@ -437,6 +437,8 @@ def _run_test_suite(runner, suite):
 
 
 def _log_error(s):
+   import traceback
+   logging.info((traceback).print_exc())
    logging.warn(s)
    return s
 

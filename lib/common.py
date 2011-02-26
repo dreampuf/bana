@@ -9,8 +9,9 @@ import wsgiref.handlers
 
 #from config import CURPATH
 import tenjin
-import tenjin.gae; tenjin.gae.init()
-from tenjin.helpers import escape, to_str
+tenjin.gae.init()
+#from tenjin.helpers import escape, to_str
+escape , to_str = tenjin.helpers.escape, tenjin.helpers.to_str
 
 pjoin = os.path.join
 

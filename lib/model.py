@@ -183,7 +183,7 @@ class Category(BaseModel):
     title = db.StringProperty()
     description = db.StringProperty(indexed=False)
     order = db.IntegerProperty(default=0)
-    parent = db.ReferenceProperty(Category, collection_name="children")
+    belong = db.SelfReferenceProperty(collection_name="children")
     #url = db.StringProperty()    #key_name as url
 
 class Tag(BaseModel):
