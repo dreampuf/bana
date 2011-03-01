@@ -1,0 +1,383 @@
+/*  
+Theme Name: iPhonsta
+Theme URI: http://www.wpshower.com
+Version: 1.1
+Description: Designed by <a href="http://www.wpshower.com">WPSHOWER</a>.
+Author: WPSHOWER
+Author URI: http://www.wpshower.com
+
+	Copyright: (c) 2010 WPSHOWER, WP3 mods by MIJK [mijk.bee@gmail.com]
+	License: GNU/GPL Version 2 or later. http://www.gnu.org/licenses/gpl.html
+
+*/
+html, body, form, fieldset, p, div, h1, h2, h3, h4, h5, h6 {
+    -webkit-text-size-adjust:none;
+}
+html, body {
+   height:100%;
+}
+
+body {
+	background-color: #000 !important;
+	color:#FFF;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:medium;
+}
+#out {
+   min-height:100%;
+   position:relative;
+   background-color:#1a1a1a;
+}
+#inner {
+	padding-bottom:54px;
+}
+
+/*########### header ##########*/
+
+#hd {
+	height: 44px;
+	position:relative;
+	background-color:#000;
+}
+#lg {
+	display: block;
+	float: left;
+	height: 44px;
+	width: 127px;
+	background-image: url(images/logo.gif);
+	background-attachment: scroll;
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+#tpmn {
+	position:absolute;
+	z-index:500;
+	right:10px;
+	bottom:-1px;
+}
+#tpmn li {
+	float:left;
+	height:41px;
+}
+#tpmn li a {
+	text-decoration:none;
+	color:#FFF;
+	padding:0;
+	height:41px;
+	font-size:14px;
+}
+#tpmn li a b {
+	display:block;
+	padding:13px 10px;
+	font-size:14px;
+}
+#tpmn li.active {
+	height:41px;
+}
+#tpmn li.active a {
+	padding:0;
+	height:41px;
+}
+#tpmn li.active a {
+	background-attachment: scroll;
+	background-image: url(images/tb-bg.gif);
+	background-repeat: no-repeat;
+	background-position: right top;	
+	height:41px;
+	display:block;
+	padding-right:10px;
+	font-size:14px;
+}
+#tpmn li.active a b {
+	background-attachment: scroll;
+	background-image: url(images/tb-bg.gif);
+	background-repeat: no-repeat;
+	background-position: left top;	
+	color:#000;
+	display:block;
+	padding:13px 0 13px 10px;
+	font-size:14px;
+}
+#top-menu, #top-menu2 {
+	background-color:#FFF;
+}
+#top-menu li a, #top-menu2 li a {
+	position:relative;
+}
+#top-menu li a span, #top-menu2 li a span {
+	position:absolute;
+	right:10px;
+	top:15px;
+}
+#top-menu li a:link, #top-menu li a:visited, #top-menu2 li a:link, #top-menu2 li a:visited {
+	border-top:solid 1px #e3e3e3;
+	padding:15px 10px;
+	display:block;
+	color:#000;
+	font-weight:bold;
+	font-size:medium;
+	text-decoration:none;
+}
+#top-menu li a:hover, #top-menu2 li a:hover {
+	border-top:solid 1px #46b40a;
+	padding:15px 10px;
+	display:block;
+	background-color:#46b40a;
+	color:#FFF;
+}
+
+/*########### inner ##########*/
+
+.pagetitle {
+	font-size:x-large;
+	font-weight:normal;
+	padding:15px 10px;
+	background-color:#1A1A1A;
+	border-bottom:solid 1px #444;
+}
+a.art {
+	color:#FFF !important;
+	display: block;
+	text-decoration:none;
+	padding:7px 10px;
+	background-color:#1a1a1a;
+	border-bottom:solid 1px #444;
+	overflow:hidden;
+	line-height:1.2;
+}
+a.art:hover, a.art:active {
+	background-color:#46b40a;
+}
+a.art h1, a.art h2 {
+	font-weight:bold;
+	font-size:x-large;
+	color:#FFF !important;
+	margin-bottom:10px !important;
+	font-weight:normal;
+	padding-right:25px;
+}
+.prv {
+	float:left;
+	margin:0 10px 0 0;
+	width: 80px;
+	height: 80px;
+}
+a.art p span {
+	color:#d5d5d5;
+}
+a.art.sm {
+	font-weight:bold;
+	font-size:medium;
+	position:relative;
+}
+a.art.sm:hover, a.art.sm:active {
+	background-color:#46b40a;
+}
+a.art.sm span {
+	float:right;
+	font-weight:normal;
+	color:#d5d5d5;
+}
+.single #cnt, .page #cnt, .author #cnt {
+	font-size:medium;
+	line-height:1.2;
+	background-color:#1A1A1A;
+	overflow:hidden;
+}
+.single #cnt .art, .page #cnt .art, .author #cnt {
+	padding:7px 10px 0;
+}
+.art.first {
+	border-top:none;
+}
+.art h1, .art h2 {
+	font-weight:bold;
+	font-size:x-large;
+	color:#FFF !important;
+	margin-bottom:10px !important;
+	font-weight:normal;
+	padding-right:25px;
+}
+.art.sm h1, .art.sm h2, .author #cnt h2 {
+	margin-bottom:0px !important;
+	font-size:large;
+	padding:7px 25px 7px 0;
+}
+.art p {
+	margin-bottom:26px;
+	line-height:1.2;
+}
+.art a {
+	color:#46b40a !important;
+}
+.art ul, .art ol {
+	margin-bottom:26px;
+}
+.art.sm span {
+	color:#d5d5d5 !important;
+	position:absolute;
+	top:14px;
+	right:10px;
+	font-size:medium;
+}
+#cnt dl, #cnt dd {
+	margin-bottom:10px !important;
+}
+#cnt dl a, #cnt dd a {
+	color:#FFFFFF !important;
+	text-decoration:none;
+}
+#cnt #post-list a {
+	color:#FFFFFF !important;
+	font-size:medium;
+	font-weight:normal;
+	margin-bottom:10px !important;
+	text-decoration:none;
+}
+#cnt #post-list li {
+	margin-bottom:10px;
+}
+
+/*########### comments ##########*/
+
+.comments {
+	height:40px;
+	background:#000;
+	padding:0 10px;
+	border-top:1px solid #444444;
+}
+#cmnts {
+	float:left;
+	line-height:40px;
+}
+#cmnts a {
+	color:#FFF;
+	text-decoration:none;
+	font-weight:bold;
+}
+#cmnts-l {
+	float:right;
+	line-height:40px;
+}
+#cmnts-l a {
+	color:#FFF;
+	text-decoration:none;
+	font-weight:bold;
+}
+.commentlist {
+	word-wrap:break-word;
+}
+.commentlist a, .login a {
+	color:#46b40a !important;
+}
+.comment, .trackback {
+	padding:10px;
+	border-top:1px solid #444444;
+}
+#author, #email, #url, #comment {
+	border:0;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	padding:10px 1%;
+	width:98%;
+	margin-bottom:10px;
+	font-size:medium;
+	font-family:Arial, Helvetica, sans-serif;
+}
+#submit {
+	width:100%;
+	border:0;
+}
+.login {
+	margin-bottom:10px;
+}
+.outbl {
+	padding:10px;
+	margin-bottom:10px;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}
+.outbl.sbm {
+	background-color:#46b40a;
+}
+#submit {
+	background:none;
+	color:#FFF;
+	font-weight:bold;
+	cursor:pointer;
+	font-size:medium;
+}
+#respond {
+	border-top:1px solid #444444;
+	padding:7px 10px 0;
+}
+
+/*########### navigation ##########*/
+
+.wp-pagenavi {
+	text-align:center;
+	height:45px;
+	line-height:45px;
+	padding:0 10px;
+	font-size:medium;
+	font-weight:bold;
+	border-bottom:1px solid #444444;
+	background-color:#1a1a1a;
+}
+.wp-pagenavi a {
+	color:#FFF;
+	text-decoration:none !important;
+	line-height:45px;
+	padding:15px 5px;
+	margin:0 5px;
+}
+.current {
+	line-height:25px;
+	padding:5px 10px;
+	background-color:#46b40a;
+	margin:0 5px;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}
+.nextpostslink {
+	float:right;
+}
+.previouspostslink {
+	float:left;
+}
+.nextpostslink, .previouspostslink {
+	line-height:15px !important;
+	margin:0 !important;
+	padding:15px 0 !important;
+}
+
+/*########### footer ##########*/
+
+#ftr {
+	height:40px;
+	line-height:40px;
+	font-size:medium;
+	padding:7px 0;
+	position:absolute;
+	bottom:0;
+	width:100%;
+	background-color:#000;
+}
+#ftr span {
+	float:left; 
+	margin-left:10px;
+}
+#ftr a {
+	float:right;
+	background-image: url(images/tp.png);
+	background-attachment: scroll;
+	background-repeat: no-repeat;
+	background-position: center center;
+	height: 14px;
+	width: 14px;
+	margin-top:13px;
+	margin-right:10px;
+}
