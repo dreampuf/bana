@@ -115,8 +115,8 @@ class BaseModel(DBModel):
         db.delete(vals)
 
     @classmethod
-    def fetch_page(cls, p, plen = 20, fun=None):
-        total = cls.total(fun)
+    def fetch_page(cls, p, plen = 20, func=None):
+        total = cls.total(func)
         n = total / plen
         if total % plen != 0:
             n = n + 1
@@ -124,7 +124,7 @@ class BaseModel(DBModel):
         if p < 0 or p > n:
             p = 1
         offset = (p - 1) * plen
-        query = cls._lastQuery if cls._lastQuery else cls.all()
+        query = cls.all() #cls._lastQuery if cls._lastQuery else cls.all()
         results = query.fetch(plen, offset) if func is None else func(query).fetch(plen, offset)
         cls._lastQuery = query
         return _Pager(results, total, p, n)
