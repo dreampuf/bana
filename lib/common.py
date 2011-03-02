@@ -78,3 +78,14 @@ def memcached(key, cache_time=0, key_suffix_calc_func=None, namespace=None):
     return wrap
 
 
+class BaseHandler(que.RequestHandler):
+    def render(self, tplname, context=None, globals=None, layout=False):
+        if context is None:
+            context = { "request" : self.request, }
+        else:
+            context["request"] = self.request
+
+        self.write(tplengine.render(tplname, context, globals, layout))
+
+class AdminHandler(que.RequestHandler):
+    pass 
