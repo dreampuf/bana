@@ -10,6 +10,7 @@ import wsgiref.handlers
 from google.appengine.api import memcache
 from google.appengine.ext import deferred
 
+from config 
 #from config import CURPATH
 import tenjin
 tenjin.gae.init()
