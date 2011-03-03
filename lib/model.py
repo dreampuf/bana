@@ -11,7 +11,27 @@ from google.appengine.ext import db
 from google.appengine.ext.db import Model as DBModel
 
 from cache import memcache
-from common import memcached
+
+def memcached(key, cache_time=0, key_suffix_calc_func=None, namespace=None):
+    def wrap(func):
+        def cached_func(*args, **kw):
+            key_with_suffix = key
+            if key_suffix_calc_func:
+                key_suffix = key_suffix_calc_func(*args, **kw)
+                if key_suffix is not None:
+                    key_with_suffix = '%s:%s' % (key, key_suffix)
+
+            value = memcache.get(key_with_suffix, namespace)
+            if value is None:
+                value = func(*args, **kw)
+                try:
+                    memcache.set(key_with_suffix, value, cache_time, namespace)
+                except:
+                    pass
+            return value
+        return cached_func
+    return wrap
+
 
 TABLE_COUNT_TAG_PRE = "tablecount"
 _settingcache = {}
@@ -63,6 +83,22 @@ class Setting(DBModel):
         opt= Setting.get_by_key_name(name)
         if opt:
             opt.delete()
+
+class _ConfigProperty(object):
+
+    def __init__(self, name, default=None, useMemoryCache=True):
+        self.name = "config_%s" % name
+        self.default= default
+        self.usememorycache = useMemoryCache
+
+    def __get__(self, instance, klass):
+        return Setting.get(self.name, self.default, self.usememorycache)
+
+    def __set__(self, instance, value):
+        Setting.set(self.name, value, self.usememorycache)
+    
+    def __str__(self):
+        return Setting.get(self.name, self.default, self.usememorycache)
 
 class _Pager(object):
     def __init__(self, data, count, index, last):
@@ -281,3 +317,7 @@ class Plugin(BaseModel):
     pluginurl = db.LinkProperty()
     pluginsize = db.IntegerProperty(default=0)
     plugindata = db.BlobProperty()
+
+
+
+

@@ -5,6 +5,9 @@ api_version: 1
 
 
 handlers:
+- url: /template/.*
+  script: lib/template.py
+
 - url: /test.*
 #  login: admin
   script: lib/gaeunit.py
@@ -25,5 +28,8 @@ handlers:
   script: $PYTHON_LIB/google/appengine/tools/dev_appserver_info
   login: admin
 
+- url: /admin/.*
+  script: admin.py
+
 - url: .*
-  script: main.py
+  script: blog.py

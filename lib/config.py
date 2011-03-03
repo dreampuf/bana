@@ -6,28 +6,13 @@
 import os, sys
 import logging
 from cache import memcache
-from model import Setting
+from model import _ConfigProperty
 
 class CommentStatus(object):
     DISENABLE = 0
     ENABLE = 1
     USERONLY = 2
     NEEDCHECK = 4
-    
-
-class _ConfigProperty(object):
-
-    def __init__(self, name, default=None, useMemoryCache=True):
-        self.name = "config_%s" % name
-        self.default= default
-        self.usememorycache = useMemoryCache
-
-    def __get__(self, instance, klass):
-        return Setting.get(self.name, self.default, self.usememorycache)
-
-    def __set__(self, instance, value):
-        Setting.set(self.name, value, self.usememorycache)
-
 
 VERSION = 2.0
 CURPATH = os.path.join(os.path.split(os.path.abspath(sys.argv[0]))[0], "..")
@@ -35,11 +20,13 @@ CHARSET = "utf-8"
 LANGUAGE = "zh-CN"
 
 APPID = os.environ["APPLICATION_ID"]
+BLOG_PATH = "/"
+BLOG_ADMIN_PATH = "/admin/"
 DOMAIN = _ConfigProperty("DOMAIN", os.environ['HTTP_HOST'])                       #站点域名
+TEMPLATE = _ConfigProperty("TEMPLATE", "iphonsta")
 
-@property
-def BASEURL():
-    return "http://%s" % (DOMAIN)
+BASEURL = "http://%s" % (DOMAIN)
+TEMPLATEURL = "%s/template/%s" % (BASEURL, TEMPLATE)
 
 LOCAL_TIMEZONE = _ConfigProperty("LOCAL_TIMEZONE", 8)                               #时区
 TITLE = _ConfigProperty("TITLE", "bana")                                          #站点名称
@@ -49,11 +36,8 @@ DATE_FORMAT = _ConfigProperty("DATE_FORMAT", "%Y-%m-%d")
 DATETIME_FORMAT = _ConfigProperty("DATETIME_FORMAT", "%Y-%m-%d %H:%M:%S")
 DATEMINUTE_FORMAT = _ConfigProperty("DATEMINUTE_FORMAT", "%Y-%m-%d %H:%M")
 
-@property
-def FEEDURL():
-    return "%s/%s/" % (BASEURL, FEED_SRC)
-
 FEED_SRC = _ConfigProperty("FEED_SRC", "feed")
+FEEDURL = "%s/%s/" % ( BASEURL, FEED_SRC)
 FEED_NUMBER = _ConfigProperty("DIGIT_FEED_NUMBER_", 20)
 FEED_SUMMARY = _ConfigProperty("FEED_SUMMARY", False)
 FEED_COMMENT_COUNT = _ConfigProperty("FEED_COMMENT_COUNT", 5) 

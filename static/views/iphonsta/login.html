@@ -1,18 +1,25 @@
+<?py # -*- coding: utf-8 -*- ?>
 <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title><?php bloginfo('name'); ?><?php wp_title(); ?></title>
+    <title>
+<?py if _context.has_key("page_name") : ?>
+#{ page_name } - #{ config.TITLE }
+<?py else: ?>
+#{ config.TITLE }
+<?py #endif ?>
+</title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="generator" content="WordPress <?php bloginfo('version'); ?>" /> <!-- leave this for stats please -->
+    <meta name="generator" content="Bana #{ config.VERSION }" />
 
-    <link rel="stylesheet" href="<?php bloginfo('template_url'); ?>/reset.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="<?php bloginfo('stylesheet_url'); ?>" type="text/css" media="screen" />
+    <link rel="stylesheet" href="#{ config.TEMPLATEURL }/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="#{ config.TEMPLATEURL }/style.css" type="text/css" media="screen" />
     
-    <link rel="shortcut icon" href="<?php bloginfo('template_url'); ?>/favicon.ico" type="image/x-icon" />
-    <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<?php bloginfo('rss2_url'); ?>" />
-    <link rel="alternate" type="text/xml" title="RSS .92" href="<?php bloginfo('rss_url'); ?>" />
-    <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="<?php bloginfo('atom_url'); ?>" />
-    <link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />
+    <link rel="shortcut icon" href="#{ config.TEMPLATEURL }/favicon.ico" type="image/x-icon" />
+    <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="#{ config.FEEDURL }" />
+    <link rel="alternate" type="text/xml" title="RSS .92" href="#{ config.FEEDURL }" />
+    <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="#{ config.FEEDURL }" />
+    <!--<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" /> -->
     <?php wp_head(); ?>
     
     <script type="text/javascript">
