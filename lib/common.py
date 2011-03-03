@@ -68,10 +68,22 @@ class BaseHandler(que.RequestHandler):
         context["config"] = config
         self.write(tplengine.render(tplname, context, globals, layout))
 
+
+manage_categories = [
+        { "url" : "post/new/", "title": u"添加文章" },
+        { "url" : "post/", "title" : u"文章管理" },
+        { "url" : "reply/", "title" : u"评论" },
+        { "url" : "config/", "title" : u"站点配置" },
+
+        ]
+
 class AdminHandler(BaseHandler):
     def render(self, tplname, context=None, globals=None, layout=False):
-        
-        super(self, AdminHandler).render(self, tplname, context, globals, layout)
+        context = context or {}
+        context["categories_title"] = u"管理"
+        context["pages_title"] = u"其他"
+        context["categories"] = manage_categories
+        super(AdminHandler, self).render(tplname, context, globals, layout)
 
 class BlogHandler(BaseHandler):
     pass 

@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?py include("header.html") ?>
         <div id="cnt">
         
 <?php if (have_posts()) : ?>
@@ -50,18 +50,8 @@
  
     <?php endwhile; ?>
 <?php endif; ?>
-               
-        
-        
-        
-  
 
         <?php if(function_exists('wp_pagenavi')) { wp_pagenavi(); } ?>
         
-        
-        
-
-
-        
         </div>
-<?php get_footer(); ?>   
+<?py include("footer.html") ?>

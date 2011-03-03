@@ -1,9 +1,12 @@
         </div>
+<?py if config.FOOTER_HTML : ?>
+#{ config.FOOTER_HTML }
+<?py else: ?>
         <div id="ftr">
-        	<span>Designed by WPSHOWER</span>
+        <span>Designed by WPSHOWER</span>
             <a href="#lg" id="top"></a>
         </div>
+<?py #endif ?>
     </div>
-<?php wp_footer(); ?>
 </body>
 </html>

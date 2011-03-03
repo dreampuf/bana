@@ -4,17 +4,27 @@
 # author: dreampuf
 
 import logging
+
+import config
 from common import BlogHandler, AdminHandler
 
 class LoginHandler(BlogHandler):
     def get(self):
-        self.render("login.html", {"page_name": u"管理员登录" }) 
+        self.render("login.html", 
+                { 
+                    "page_name": u"管理员登录",
+                    
+                    }) 
 
 
     def post(self):
-        pass
+        self.redirect(config.ADMINURL)
 
 
 class AdminIndexHandler(AdminHandler):
     def get(self):
-        pass
+        
+        self.render("index.html",
+                {
+                    "page_name": u"站点管理",
+                    })

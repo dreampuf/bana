@@ -26,6 +26,7 @@ DOMAIN = _ConfigProperty("DOMAIN", os.environ['HTTP_HOST'])                     
 TEMPLATE = _ConfigProperty("TEMPLATE", "iphonsta")
 
 BASEURL = "http://%s" % (DOMAIN)
+ADMINURL = "%s%s" % (BASEURL, BLOG_ADMIN_PATH)
 TEMPLATEURL = "%s/template/%s" % (BASEURL, TEMPLATE)
 
 LOCAL_TIMEZONE = _ConfigProperty("LOCAL_TIMEZONE", 8)                               #时区

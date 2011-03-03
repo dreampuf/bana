@@ -20,7 +20,6 @@
     <link rel="alternate" type="text/xml" title="RSS .92" href="#{ config.FEEDURL }" />
     <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="#{ config.FEEDURL }" />
     <!--<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" /> -->
-    <?php wp_head(); ?>
     
     <script type="text/javascript">
     <!--
@@ -45,23 +44,34 @@
     //-->
     </script>
 </head>
-<body <?php body_class(); ?>>
+<body>
     <div id="out">
         <div id="inner">
         <div id="hd">
-            <a href="<?php bloginfo("url"); ?>" id="lg"></a>
+            <a href="#{ config.ADMINURL }" id="lg"><span>Bana</span></a>
             <ul id="tpmn">
-                <li id="cts"><a href="JavaScript:;" onclick="toggle_visibility('top-menu'); changeCssClass('cts'); getElementById('top-menu2').style.display='none'; getElementById('pg').setAttribute('class', '');"><b>Categories</b></a></li>
-                <li id="pg"><a href="JavaScript:;" onclick="toggle_visibility('top-menu2'); changeCssClass('pg'); getElementById('top-menu').style.display='none'; getElementById('cts').setAttribute('class', '');"><b>Pages</b></a></li>
+                <li><a id="ctg" href="#"><b>Help</b></a></li>
+                <li><a href="#{ config.BASEURL }"><b>Back Front</b></a></li>
             </ul>
         </div>
-        <ul id="top-menu" style="display:none;">
-            <?php
-                $data = wp_list_categories('show_count=1&echo=0&title_li=0&depth=1');
-                $data = preg_replace('/\<\/a\> \((.*)\)/',' <span>$1</span></a>',$data);
-                echo $data;
-            ?>
-        </ul>
-        <ul id="top-menu2" style="display:none;">
-            <?php wp_list_pages('title_li=0&depth=1'); ?>
-        </ul>
+
+<div id="cnt">
+<form action="." method="POST">
+<a class="art sm">
+<label for="username">UserName: </label><input id="username" name="username">
+</a>
+<a class="art sm">
+<label for="password">PassWord: </label><input id="password" name="passowrd" type="password">
+</a>
+<p>
+    <input type="submit"> <span>Forget ?<span/>
+</p>
+</form>
+        </div>
+        <div id="ftr">
+        <span>Support By Bana</span>
+            <a href="#lg" id="top"></a>
+        </div>
+    </div>
+</body>
+</html>
