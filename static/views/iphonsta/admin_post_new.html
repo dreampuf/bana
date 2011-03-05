@@ -62,16 +62,19 @@ return false;
 -->
 </script>
 <form action="." method="POST">
-<a class="art sm">
-    <label for="category_select">分类选择: </label>
-    <select id="category_select">
-        <option value="cc">花开花落</option>
+<div id="uit">
+    <select class="input" id="category_select">
+        <option value="cc">分类选择</option>
+        <option value="gg">分类一</option>
     </select>
-</a>
-    <textarea id="editor" name="content" cols="80" rows="20"></textarea>
-<a class="art sm">
+    <input type="text" class="input" name="title">
+    <textarea class="input" id="editor" name="content"></textarea>
+<div class="submit">
+    <div class="outbl sbm">
     <input type="submit" id="submit">
-</a>
+    </div>
+</div>
+</div>
 </form>
 <?py #endif ?>
     </div>

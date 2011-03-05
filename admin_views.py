@@ -46,7 +46,8 @@ class AdminAddPostHandler(AdminHandler):
 
         self.render("admin_post_new.html", context)
 
-
+    def post(self):
+        pass
 
 
 

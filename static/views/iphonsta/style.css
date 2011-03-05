@@ -288,7 +288,7 @@ a.art.sm span {
     padding:10px;
     border-top:1px solid #444444;
 }
-#author, #email, #url, #comment {
+.input, #author, #email, #url, #comment {
     border:0;
     -moz-border-radius:3px;
     -webkit-border-radius:3px;
@@ -330,7 +330,7 @@ a.art.sm span {
 
 /*########### navigation ##########*/
 
-.wp-pagenavi {
+.ba-pagenavi {
     text-align:center;
     height:45px;
     line-height:45px;
@@ -340,7 +340,7 @@ a.art.sm span {
     border-bottom:1px solid #444444;
     background-color:#1a1a1a;
 }
-.wp-pagenavi a {
+.ba-pagenavi a {
     color:#FFF;
     text-decoration:none !important;
     line-height:45px;

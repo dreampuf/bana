@@ -14,7 +14,7 @@ class CommentStatus(object):
     USERONLY = 2
     NEEDCHECK = 4
 
-class _A(object):
+class config(object):
     VERSION = 2.0
     CURPATH = os.path.join(os.path.split(os.path.abspath(sys.argv[0]))[0], "..")
     CHARSET = "utf-8"
@@ -73,4 +73,4 @@ class _A(object):
 
 
 
-config = _A()
+config = config()
