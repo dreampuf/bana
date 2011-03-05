@@ -1,0 +1,18 @@
+<?py 
+errors_msg = _context.get("errors_msg")
+?>
+<?py if errors_msg: ?> 
+<h2 class="center">#{ errors_msg["title"] }</h2>
+<p class="center">
+<?py 
+if errors_msg :
+    if errors_msg.has_key("items"): 
+       for i in errors_msg["items"]: ?>
+    #{ i }
+    <?py    #endfor
+    else : ?>
+    #{ errors_msg["content"] 
+    <?py #endif ?>
+    </p>
+    <?py #endif ?>
+<?py #endif ?>

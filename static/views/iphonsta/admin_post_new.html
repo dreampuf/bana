@@ -1,0 +1,80 @@
+<?py include("header.html") ?>
+<div>
+<?py 
+lists = _context.get("lists", [])
+errors_msg = _context.get("errors_msg")
+?>
+<?py include("errors.html") ?>
+<div class="cnt">
+    <h1>#{ page_title }</h1>
+    <div class="entry">
+<?py
+if _context.get("first"):
+
+?>
+请选择您所喜欢的编辑器:
+<a class="art sm pointer" href="?editor=html">
+    HTML
+</a>
+<a class="art sm pointer" href="?editor=rest">
+    ReStruct Text
+</a>
+<a class="art sm pointer" href="?editor=markdown">
+    Mark Down 
+</a>
+<a class="art sm pointer" href="?editor=ubb">
+    UBB
+</a>
+
+<?py else: 
+
+?>
+<script type="text/javascript" src="#{ config.BASEURL }/js/jquery-1.5.1.js"></script>
+<script type="text/javascript" src="#{ config.BASEURL }/js/markitup/jquery.markitup.js"></script>
+<script type="text/javascript" src="#{ config.BASEURL }/js/markitup/sets/#{ config.POST_EDITOR }.js"></script>
+<link rel="stylesheet" type="text/css" href="#{ config.BASEURL }/js/markitup/skins/simple/style.css" />
+<link rel="stylesheet" type="text/css" href="#{ config.BASEURL }/js/markitup/sets/#{ config.POST_EDITOR }.css" />
+<script type="text/javascript">
+<!--
+$(document).ready(function(){
+    $('#editor').markItUp(mySettings);
+
+$('.add').click(function() {
+ $.markItUp( { openWith:'<opening tag>',
+ closeWith:'<\/closing tag>',
+ placeHolder:"New content"
+ }
+ );
+  return false;
+  });
+  
+  $('.toggle').click(function() {
+  if ($("#markItUp.markItUpEditor").length === 1) {
+   $("#markItUp").markItUpRemove();
+   $("span", this).text("get markItUp! back");
+   } else {
+   $('#markItUp').markItUp(mySettings);
+   $("span", this).text("remove markItUp!");
+   }
+return false;
+});
+});
+-->
+</script>
+<form action="." method="POST">
+<a class="art sm">
+    <label for="category_select">分类选择: </label>
+    <select id="category_select">
+        <option value="cc">花开花落</option>
+    </select>
+</a>
+    <textarea id="editor" name="content" cols="80" rows="20"></textarea>
+<a class="art sm">
+    <input type="submit" id="submit">
+</a>
+</form>
+<?py #endif ?>
+    </div>
+</div>
+</div>
+<?py include("footer.html") ?>
