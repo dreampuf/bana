@@ -9,20 +9,23 @@ CURPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 
 from google.appengine.ext.webapp import util
 
-from config import BLOG_PATH, TEMPLATE
+from config import config
 import que
 
 class aHandler(que.RequestHandler):
     def get(self, filename): #TODO 凑合
         #logging.info(filename)
         tplpath = os.path.join( "..", "static", "views", "iphonsta")
-        fs = open(os.path.join(tplpath, filename))
-        self.write(fs.read())
-        fs.close()
+        try:
+            fs = open(os.path.join(tplpath, filename))
+            self.write(fs.read())
+            fs.close()
+        except:
+            pass
         
 
 def main():
-    tpl_path = "%stemplate/%s/(.*)" % (BLOG_PATH ,TEMPLATE )
+    tpl_path = "%stemplate/%s/(.*)" % (config.BLOG_PATH , config.TEMPLATE )
     application = que.WSGIApplication([
     (tpl_path, aHandler), 
      ])

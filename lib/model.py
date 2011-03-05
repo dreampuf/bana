@@ -57,6 +57,7 @@ class Setting(DBModel):
             if useMemoryCache:
                 _settingcache[name] = result
             memcache.set("setting.%s" % name, result, 0)
+            logging.info("ggc")
             return result
         except:
             return default
@@ -90,6 +91,10 @@ class _ConfigProperty(object):
         self.name = "config_%s" % name
         self.default= default
         self.usememorycache = useMemoryCache
+
+    #def __getattr__(self, attrname):
+    #    real = Setting.get(self.name, self.default, self.usermemorycache)
+    #    return real.__getattr__(attrname)
 
     def __get__(self, instance, klass):
         return Setting.get(self.name, self.default, self.usememorycache)

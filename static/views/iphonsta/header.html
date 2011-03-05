@@ -59,6 +59,7 @@ pages_title = _context.get("pages_title", "Pages")
             </ul>
         </div>
         <ul id="top-menu" style="display:none;">
+<?py categories = _context.get("categories", []) ?>
 <?py for i in categories: ?>
 <li class="cat-item"><a href="#{ i["url"] }">#{ i["title"] }</a></li>
 <?py #endfor ?>

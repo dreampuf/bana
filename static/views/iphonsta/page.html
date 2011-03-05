@@ -1,9 +1,7 @@
-<?php get_header(); ?>
+<?py include("header.html") ?>
         <div id="cnt">
         
-        
-        
-		<?php if (have_posts()) : ?>
+        <?php if (have_posts()) : ?>
     
             <?php while (have_posts()) : the_post(); ?>
     
@@ -27,4 +25,4 @@
         
         
         </div>
-<?php get_footer(); ?>
+<?py include("footer.html") ?>

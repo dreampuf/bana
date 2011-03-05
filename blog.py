@@ -12,15 +12,12 @@ from google.appengine.api import memcache
 from google.appengine.ext.webapp import util
 
 import que
-from common import tplengine, escape, to_str
+from common import BlogHandler 
 
 from cache import locache
-class MainHandler(que.RequestHandler):
+class MainHandler(BlogHandler):
     def get(self):
-        write = self.response.out.write
-
-
-        write(tplengine.render("index.html", { "time" : "<strong>cc</strong>ccc"} )) 
+        self.render("index.html", { "time" : "<strong>cc</strong>ccc"} )
         #write("Hello World!")
 
 

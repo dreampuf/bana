@@ -4,7 +4,20 @@ runtime: python
 api_version: 1
 
 
+builtins:
+- datastore_admin: on
+- deferred: on
+- remote_api: on
+ 
+inbound_services:
+- warmup
+- mail
+
+
 handlers:
+- url: /js
+  static_dir: static/js
+
 - url: /template/.*
   script: lib/template.py
 
