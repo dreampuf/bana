@@ -19,6 +19,13 @@
     <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="#{ config.FEEDURL }" />
     <link rel="alternate" type="text/xml" title="RSS .92" href="#{ config.FEEDURL }" />
     <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="#{ config.FEEDURL }" />
+<?py for i in config.HEAD_LINK :?>
+<?py     if i.endswith("js") :?> 
+<script type="text/javascript" src="#{ config.BASEURL + i }"></script>
+<?py     else: ?>
+<link rel="stylesheet" href="#{ config.BASEURL + i }" type="text/css" media="screen" />
+<?py      #endif ?>
+<?py #end ?>
     <!-- <link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" /> -->
     
     <script type="text/javascript">
@@ -39,6 +46,18 @@
             else
             {
                 document.getElementById(objDivID).className = 'active';
+            }
+        }
+        Array.prototype.forEach = Array.prototype.forEach ||  function(fun) {
+            var len = this.length;
+            if (typeof fun != "function")
+                return;
+
+            var thisp = arguments[1];
+            for (var i = 0; i < len; i++)
+            {
+              if (i in this)
+                fun.call(thisp, this[i], i, this);
             }
         }
     //-->

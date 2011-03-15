@@ -70,10 +70,10 @@ class BaseHandler(que.RequestHandler):
 
 
 manage_categories = [
-        { "url" : "post/new/", "title": u"添加文章" },
-        { "url" : "post/", "title" : u"文章管理" },
-        { "url" : "reply/", "title" : u"评论" },
-        { "url" : "config/", "title" : u"站点配置" },
+        { "url" : config.BLOG_ADMIN_PATH + "post/new/", "title": u"添加文章" },
+        { "url" : config.BLOG_ADMIN_PATH + "post/", "title" : u"文章管理" },
+        { "url" : config.BLOG_ADMIN_PATH + "reply/", "title" : u"评论" },
+        { "url" : config.BLOG_ADMIN_PATH + "config/", "title" : u"站点配置" },
 
         ]
 

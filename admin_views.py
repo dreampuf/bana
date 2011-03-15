@@ -23,10 +23,8 @@ class LoginHandler(BlogHandler):
 class AdminIndexHandler(AdminHandler):
     def get(self):
         
-        self.render("admin_page.html",
-                { "page_name": u"站点管理",
-                  "page_title": u"基本信息",
-                    })
+        self.render("admin_page.html", { "page_name": u"站点管理",
+                                         "page_title": u"基本信息", })
 
 class AdminAddPostHandler(AdminHandler):
     def get(self):
@@ -47,7 +45,40 @@ class AdminAddPostHandler(AdminHandler):
         self.render("admin_post_new.html", context)
 
     def post(self):
-        pass
+        logging.info(self.request.POST)
+
+
+
+
+class AdminConfigHandler(AdminHandler):
+    def get(self):
+        
+        context = {"page_title": u"站点设置", }
+        
+        self.render("admin_config.html", context)
+
+    def post(self):
+
+        post_editor = self.request.POST.get("POSTEDITOR")#pop("POST_EDITOR")
+        if post_editor in config.EDITOR_TYPE:
+            config.POST_EDITOR = post_editor
+
+        for key, val in self.request.POST.items():
+            try:
+                if isinstance(getattr(config, key), list) and val.find("\n") != -1:
+                    setattr(config, key, val.split("\n")) 
+                else:
+                    setattr(config, key, val)
+                pass
+            except AttributeError, ex:
+                continue
+
+        self.redirect(".")
+
+
+
+
+
 
 
 

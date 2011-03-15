@@ -38,7 +38,9 @@ body {
     width:100%;
     border:0;
 }
-
+.hidden {
+    display: none;
+}
 
 /*########### header ##########*/
 
@@ -288,7 +290,7 @@ a.art.sm span {
     padding:10px;
     border-top:1px solid #444444;
 }
-.input, #author, #email, #url, #comment {
+#fields input,#fields textarea, .input, #author, #email, #url, #comment {
     border:0;
     -moz-border-radius:3px;
     -webkit-border-radius:3px;

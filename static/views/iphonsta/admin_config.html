@@ -1,15 +1,75 @@
 <?py include("header.html") ?>
+<script type="text/javascript">
+var tmp;
+$(function(){
+$.each($("#fields").find("input, textarea"), function(n, i){
+    i = $(i);
+    i.attr("title", i.attr("rel"));
+    i.blur(function(e){
+        if($.trim(i.val()) == "") {
+            i.val(i.attr("rel"));
+        }
+    }).focus(function(e){
+        if($.trim(i.val()) == i.attr("rel")) {
+            i.val("");
+        }
+    });
+    i.val(i.val() || i.attr("rel"));
+}); 
+$("form").submit(function() {
+$.each($("#fields").children(), function(n, i){
+    if(["input", "textarea"].indexOf(i.tagName.toLowerCase()) == -1)
+        return ;
+
+    i = $(i);
+    if($.trim(i.val()) == i.attr("rel")){
+        i.val("");
+    } 
+});
+});
+});
+</script>
 <div id="cnt">
 <?py 
 lists = _context.get("lists", [])
 errors_msg = _context.get("errors_msg")
 ?>
 <?py include("errors.html") ?>
-<div class="art">
+<div class="respond">
     <h1>#{ page_title }</h1>
-    <div class="entry">
-        "ssss"
+    <hr>
+<form action="." method="POST">
+    <div id="fields">
+        <input type="text" name="TITLE" rel="站点名称" size="22" value="#{ config.TITLE }">
+        <input type="text" name="SUBTITLE" rel="子标题" size="22" value="#{ config.SUBTITLE }">
+        <input type="text" name="DESCRIPTION" rel="站点描述(用于Feed)" size="22" value="#{ config.DESCRIPTION }">
+        <input type="text" name="DOMAIN" rel="站点域名" size="22" value="#{ config.DOMAIN }">
+        <select title="编辑器选择" name="POST_EDITOR" class="input">
+<?py for i in config.EDITOR_TYPE :?>
+<?py     if i == config.POST_EDITOR : ?> 
+<option selected="selected" value="#{ i }">#{ i }</option>
+<?py     else: ?>
+<option value="#{ i }">#{ i }</option>
+<?py     #endif ?>
+<?py #end ?>
+        </select>
+
+        <hr>
+        <input type="text" name="POST_URL" rel="文章路径" size="22" value="#{ config.POST_URL }">
+        <input type="text" name="DATE_FORMAT" rel="日期格式化" size="22" aria-required="true" value="#{ config.DATE_FORMAT }">
+        <input type="text" name="DATETIME_FORMAT" rel="日期时间格式化" size="22" aria-required="true" value="#{ config.DATETIME_FORMAT }">
+        <hr>
+        <textarea name="HEAD_LINK" rel="头部链接" cols="100%" rows="10">#{ "\n".join(config.HEAD_LINK) }</textarea>
+        <textarea name="FOOTER_HTML" rel="尾部HTML" cols="100%" rows="10">#{ config.FOOTER_HTML }</textarea>
+        <textarea name="HUB_SRC" rel="HUB中心地址" cols="100%" rows="10">#{ "\n".join(config.HUB_SRC) }</textarea>
+        <textarea name="XML_RPC_ENDPOINT" rel="XML RPC端口" cols="100%" rows="10">#{ "\n".join(config.XML_RPC_ENDPOINT) }</textarea>
     </div>
+<div class="submit">
+    <div class="outbl sbm">
+    <input type="submit" id="submit">
+    </div>
+</div>
+</form>
 </div>
 </div>
 <?py include("footer.html") ?>

@@ -29,7 +29,6 @@ if _context.get("first"):
 <?py else: 
 
 ?>
-<script type="text/javascript" src="#{ config.BASEURL }/js/jquery-1.5.1.js"></script>
 <script type="text/javascript" src="#{ config.BASEURL }/js/markitup/jquery.markitup.js"></script>
 <script type="text/javascript" src="#{ config.BASEURL }/js/markitup/sets/#{ config.POST_EDITOR }.js"></script>
 <link rel="stylesheet" type="text/css" href="#{ config.BASEURL }/js/markitup/skins/simple/style.css" />
@@ -58,17 +57,49 @@ $('.add').click(function() {
    }
 return false;
 });
+
+$.each($("#fields").find("input, textarea"), function(n, i){
+    i = $(i);
+    i.attr("title", i.attr("rel"));
+    i.blur(function(e){
+        if($.trim(i.val()) == "") {
+            i.val(i.attr("rel"));
+        }
+    }).focus(function(e){
+        if($.trim(i.val()) == i.attr("rel")) {
+            i.val("");
+        }
+    });
+    i.val(i.val() || i.attr("rel"));
+}); 
+
+$("#show_other").click(function(){
+    $("#other").toggle();
+});
+
 });
 -->
 </script>
 <form action="." method="POST">
-<div id="uit">
-    <select class="input" id="category_select">
+<div class="respond">
+    <div id="fields">
+    <hr>
+    <input type="text" rel="标题" name="post.title">
+    <select class="input" name="post.category" id="post.category">
         <option value="cc">分类选择</option>
         <option value="gg">分类一</option>
     </select>
-    <input type="text" class="input" name="title">
-    <textarea class="input" id="editor" name="content"></textarea>
+<a id="show_other" class="art sm pointer" href="#">
+    其他
+</a>
+<div id="other" class="hidden">
+    <input type="text" rel="URL" name="post.url">
+    <input type="text" rel="关键字" name="post.keyword">
+    <input type="text" rel="Tag标签" name="post.tags">
+    <hr>
+</div>
+    <textarea id="editor" name="post.content"></textarea>
+    </div>
 <div class="submit">
     <div class="outbl sbm">
     <input type="submit" id="submit">
