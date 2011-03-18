@@ -218,6 +218,14 @@ class User(BaseModel):
 
     #email = db.EmailProperty() #key_name as email
 
+
+    @classmethod
+    def check(cls, email, password):
+        user = cls.get_by_key_name(email)
+        if user and user.password == md5(password).hexdigest():
+            return user
+        return None
+
 class Category(BaseModel):
     ishidden = db.BooleanProperty(default=False)
 
