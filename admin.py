@@ -10,13 +10,19 @@ sys.path.insert(0, os.path.join(CURPATH, "lib"))
 from google.appengine.ext.webapp import util
 
 from config import config
-from admin_views import LoginHandler, AdminIndexHandler, AdminAddPostHandler, AdminConfigHandler, AdminCategoryHandler
+from admin_views import LoginHandler
+from admin_views import AdminIndexHandler
+from admin_views import AdminAddPostHandler
+from admin_views import AdminConfigHandler
+from admin_views import AdminCategoryHandler
+from admin_views import AdminPostHandler
 import que
 from common import session_middleware
 
 def main():
     BLOG_ADMIN_PATH = config.BLOG_ADMIN_PATH
     application = que.WSGIApplication([
+    (BLOG_ADMIN_PATH + "post/", AdminPostHandler), 
     (BLOG_ADMIN_PATH + "post/new/", AdminAddPostHandler),
     (BLOG_ADMIN_PATH + "login/", LoginHandler), 
     (BLOG_ADMIN_PATH + "config/", AdminConfigHandler), 

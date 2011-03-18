@@ -5,13 +5,11 @@ errors_msg = _context.get("errors_msg")
 <div class="hidden" id="error_show">
 <h2 class="center">#{ errors_msg["title"] if "title" in errors_msg else errors_msg }</h2>
 <p class="center">
-<?py 
-if errors_msg :
-    if isinstance(errors_msg, Exception): ?>
-#{ errors_msg }
-<?py else: ?>
-#{ errors_msg }
-<?py #endif ?>
+    <?py if isinstance(errors_msg, Exception): ?>
+    #{ errors_msg }
+    <?py else: ?>
+    #{ errors_msg }
+    <?py #endif ?>
 </p>
 </div>
 <?py #endif ?>

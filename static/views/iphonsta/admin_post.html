@@ -2,14 +2,19 @@
 <div id="cnt">
 <?py 
 lists = _context.get("lists", [])
-errors_msg = _context.get("errors_msg")
 ?>
 <?py include("errors.html") ?>
-<div class="art">
+<div class="cnt">
     <h1>#{ page_title }</h1>
     <div class="entry">
-        "ssss"
-    </div>
+<?py if len(pager.data): ?>
+    <?py for i in pager.data: ?>
+    <h2><a class="art" href="#{{ config.BLOG_ADMIN_PATH }}post/#{ i.key().id() }/">${ i.title }<br/>
+    <span class="info">#{ i.comments.count() }条评论 #{ i.views }次查看 ${ FormatTime(i.created) }</span></a></h2>
+    <?py #end ?>
+    <?py include("pager.html", p=pager, argstyle="?p=") ?> 
+<?py #endif ?>
+</div>
 </div>
 </div>
 <?py include("footer.html") ?>

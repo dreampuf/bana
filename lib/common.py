@@ -57,7 +57,7 @@ url_mapper = {
 }
 def realurl(post):
     url = config.POST_URL
-    for key, val in mapper.items():
+    for key, val in url_mapper.items():
         if url.find(key) != -1:
             url = url.replace(key, str(val(post)))
     return url
@@ -80,10 +80,14 @@ class UTC(datetime.tzinfo):
         return ZERO_TIME_DELTA
 UTC = UTC()
 
-def ParserTime(dtstr, format = "%Y/%m/%d %H:%M:%S"):
+def FormatTime(dt, format=config.DATETIME_FORMAT):
+    if dt:
+        return dt.strftime(format)
+
+def ParserTime(dtstr, format="%Y/%m/%d %H:%M:%S"):
     return datetime.datetime.strptime(dtstr, format)
 
-def ParserLocalTimeToUTC(dtstr, format = "%Y/%m/%d %H:%M:%S"):
+def ParserLocalTimeToUTC(dtstr, format="%Y/%m/%d %H:%M:%S"):
     return ParserTime(dtstr, format).replace(tzinfo=LOCAL_TIMEZONE).astimezone(UTC) \
                 .replace(tzinfo=None) #fix in Google Engine App
 
@@ -122,8 +126,8 @@ manage_categories = [
 
 class AdminHandler(BaseHandler):
     def __init__(self, request, response, default_status=405):
-        request.session = get_current_session()        
-        request.session["curr_ukey"] = "soddyque@gmail.com"
+        self.session = get_current_session()        
+        self.session["curr_ukey"] = "soddyque@gmail.com"
         soddy()
         super(AdminHandler, self).__init__(request, response, default_status=405)
 

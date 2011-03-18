@@ -6,8 +6,8 @@
 import logging
 
 from config import config
-from common import BlogHandler, AdminHandler, randstr, json
-from model import run_in_transaction, Rollback, Category, Post, PostFormat
+from common import BlogHandler, AdminHandler, randstr, json, realurl 
+from model import run_in_transaction, Rollback, Category, Post, Tag
 
 class LoginHandler(BlogHandler):
     def get(self):
@@ -46,6 +46,18 @@ class AdminCategoryHandler(AdminHandler):
             else:
                 self.jsonout("ok")
 
+class AdminPostHandler(AdminHandler):
+    def get(self):
+        p = self.GET.get("p")
+        p = int(p) if p and p.isdigit() else 1
+        pager = Post.fetch_page(p)
+
+        context = {"page_name": u"文章管理",
+                   "page_title": u"文章管理",
+                   "pager": pager }
+        self.render("admin_post.html", context)
+
+
 class AdminAddPostHandler(AdminHandler):
     def get(self):
         editor = self.GET.get("editor")
@@ -74,15 +86,23 @@ class AdminAddPostHandler(AdminHandler):
         pdict = self.request.POST
         
         try:
-            #def new(cls,title, category_keyname, author_keyname, url, keyword, tags, content, status, format=PostFormat.PLAIN, enablecomment=True):
-            raise Exception(u"好欢乐的错误啊")
+            #def new(cls, title, category_keyname, author_keyname, url, keyword, tags, content, status=PostStatus.NORMAL, format=PostFormat.PLAIN, enablecomment=True):
+            tags = pdict.get("post.tags").split(",")
+            for i in tags:
+                Tag.Incr(i)
+
             p = Post.new(title=pdict.get("post.title"),
                          category_keyname=pdict.get("post.category"),
                          author_keyname=self.session.get("curr_ukey"),
                          url=pdict.get("post.url"),
                          keyword=pdict.get("post.keyword").split(","),
-                         tags=pdict.get("post.tags").split(","),
+                         tags=tags,
+                         content=pdict.get("post.content"),
                          format=pdict.get("post.format") )
+            p.url = realurl(p)
+            p.put()
+            Post.refresh_total()
+
         except Exception, ex:
             context = {}
             context.update(self.request.POST)
@@ -93,16 +113,8 @@ class AdminAddPostHandler(AdminHandler):
             logging.info(context)
             self.render("admin_post_new.html", context)
         else:
-            self.redirect("../../")
+            self.redirect("../../post/")
             
-            
-
-        
-
-    
-
-
-
 
 class AdminConfigHandler(AdminHandler):
     def get(self):
@@ -118,8 +130,11 @@ class AdminConfigHandler(AdminHandler):
 
         for key, val in self.request.POST.items():
             try:
-                if isinstance(getattr(config, key), list) and val.find("\n") != -1:
-                    setattr(config, key, val.split("\n")) 
+                if isinstance(getattr(config, key), list):
+                    if val.find("\n") != -1:
+                        setattr(config, key, val.split("\n")) 
+                    else:
+                        setattr(config, key, [val])
                 else:
                     setattr(config, key, val)
                 pass

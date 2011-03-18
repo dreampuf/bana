@@ -15,6 +15,10 @@ import que
 class aHandler(que.RequestHandler):
     def get(self, filename): #TODO 凑合
         #logging.info(filename)
+        if filename.endswith("js"):
+            self.set_content_type("text/javascript")
+        elif filename.endswith("css"):
+            self.set_content_type("text/css")
         tplpath = os.path.join( "..", "static", "views", "iphonsta")
         try:
             fs = open(os.path.join(tplpath, filename))

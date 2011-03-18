@@ -60,7 +60,7 @@ class config(object):
     SITEMAP_CACHE_TIME = _ConfigProperty("SITEMAP_CACHE_TIME", 600)
     
     FOOTER_HTML = _ConfigProperty("FOOTER_HTML", "")
-    HEAD_LINK = _ConfigProperty("HEAD_LINK", ["/css/style.css", "/js/common.js"])
+    HEAD_LINK = _ConfigProperty("HEAD_LINK", ["/js/common.js"])
     POST_URL = _ConfigProperty("POST_URL", "%year%/%month%/%url%.html")
     
     COMMENT_STATUS = _ConfigProperty("COMMENT_STATUS", CommentStatus.ENABLE)

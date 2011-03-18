@@ -63,13 +63,13 @@ errors_msg = _context.get("errors_msg")
         <textarea name="FOOTER_HTML" rel="尾部HTML" cols="100%" rows="10">#{ config.FOOTER_HTML }</textarea>
         <textarea name="HUB_SRC" rel="HUB中心地址" cols="100%" rows="10">#{ "\n".join(config.HUB_SRC) }</textarea>
         <textarea name="XML_RPC_ENDPOINT" rel="XML RPC端口" cols="100%" rows="10">#{ "\n".join(config.XML_RPC_ENDPOINT) }</textarea>
+    </div><!--fields-->
+    <div class="submit">
+        <div class="outbl sbm">
+        <input type="submit" id="submit">
+        </div>
     </div>
-<div class="submit">
-    <div class="outbl sbm">
-    <input type="submit" id="submit">
-    </div>
-</div>
 </form>
-</div>
-</div>
+</div><!--respond-->
+</div><!--cnt-->
 <?py include("footer.html") ?>

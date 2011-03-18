@@ -276,21 +276,31 @@ class Category(BaseModel):
 
 class Tag(BaseModel):
     # key_name as title
-    count = db.IntegerProperty(default=0)
+    count = db.IntegerProperty(default=1)
  
     @property
     def posts(self):
         return Post.all().filter("tags =", self.key().name()) 
 
     @classmethod
-    def IncrTags(tags):
-        #TODO 增加Tag
-        pass
+    def Incr(cls, tag):
+        t = cls.get_by_key_name(tag)
+        if not t:
+            t = cls(key_name=tag)
+            t.put()
+        else:
+            t.count = t.count + 1
+            t.put()
 
     @classmethod
-    def DecrTags(tags):
-        #TODO 去掉Tag
-        pass
+    def Decr(cls, tag):
+        t = cls.get_by_key_name(tag)
+        if t:
+            if t.count == 1:
+                db.delete(t)
+            else:
+                t.count = t.count - 1
+                db.put(t)
 
 class PostStatus(object):
     NORMAL = 0
@@ -328,6 +338,7 @@ class Post(BaseModel):
     def new(cls, title, category_keyname, author_keyname, url, keyword, tags, content, status=PostStatus.NORMAL, format=PostFormat.PLAIN, enablecomment=True):
         c = Key.from_path("Category", category_keyname)
         a = Key.from_path("User", author_keyname)
+        
         p = cls(#key_name=realurl, 因为realurl存在修改的可能而key_name无法修改;可能需要key_id数字索引;realurl需要存储之后才能获得; 
                 title=title,
                 category=c,

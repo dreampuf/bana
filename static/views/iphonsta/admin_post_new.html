@@ -1,7 +1,6 @@
 <?py include("header.html") ?>
 <?py 
 lists = _context.get("lists", [])
-errors_msg = _context.get("errors_msg")
 
 #modify
 posttitle = _context.get("post.title")
@@ -15,7 +14,6 @@ postcontent = _context.get("post.content")
 <?py include("errors.html") ?>
 <div class="cnt">
     <h1>#{ page_title }</h1>
-    <div class="entry">
 <?py
 if _context.get("first"):
 
@@ -128,42 +126,42 @@ $("#create_category").click(function(){
     <input type="text" rel="标题" name="post.title" value="#{ posttitle }">
     <select class="input" name="post.category" id="post.category">
         <option value="#choice#">分类选择</option>
-<?py for i in all_category : ?>
-<?py     if postcategory and postcategory == i.key().name() : ?>
+<?py     for i in all_category : ?>
+<?py         if postcategory and postcategory == i.key().name() : ?>
 <option selected="selected" value="#{ i.key().name() }">#{ i.title }</option>
-<?py     else : ?>
+<?py         else : ?>
 <option value="#{ i.key().name() }">#{ i.title }</option>
-<?py     #endif ?>
-<?py #end ?>
+<?py         #endif ?>
+<?py     #end ?>
         <option value="#new#">创建分类</option>
     </select>
-<div id="newcategory" class="hidden">
-    <input type="text" rel="分类名称" name="category.title">
-    <input type="text" rel="分类URL" name="category.url">
-    <textarea rel="分类描述" name="category.description"></textarea>
-<a id="create_category" class="art sm pointer" href="#">
- &nbsp;创建分类 
-</a>
-</div>
-<a id="show_other" class="art sm pointer" href="#">
-    其他
-</a>
-<div id="other" class="hidden">
-    <input type="text" rel="URL" name="post.url" value="#{ posturl }">
-    <input type="text" rel="关键字" name="post.keyword" value="#{ postkeyword }">
-    <input type="text" rel="Tag标签" name="post.tags" value="#{ posttags }">
-    <hr>
-</div>
-    <textarea id="editor" name="post.content">#{ postcontent }</textarea>
-    <input type="hidden" name="post.format" value="#{ config.POST_EDITOR }">
-    </div>
-<div class="submit">
-    <div class="outbl sbm">
-    <input type="submit" id="submit">
-    </div>
-</div>
+        <div id="newcategory" class="hidden">
+            <input type="text" rel="分类名称" name="category.title">
+            <input type="text" rel="分类URL" name="category.url">
+            <textarea rel="分类描述" name="category.description"></textarea>
+        <a id="create_category" class="art sm pointer" href="#">
+         &nbsp;创建分类 
+        </a>
+        </div>
+        <a id="show_other" class="art sm pointer" href="#">
+            其他
+        </a>
+        <div id="other" class="hidden">
+            <input type="text" rel="URL" name="post.url" value="#{ posturl }">
+            <input type="text" rel="关键字" name="post.keyword" value="#{ postkeyword }">
+            <input type="text" rel="Tag标签" name="post.tags" value="#{ posttags }">
+            <hr>
+        </div>
+        <textarea id="editor" name="post.content">#{ postcontent }</textarea>
+        <input type="hidden" name="post.format" value="#{ config.POST_EDITOR }">
+        <div class="submit">
+            <div class="outbl sbm">
+            <input type="submit" id="submit">
+            </div>
+        </div>
+    </div><!--fields-->
+</div><!--respond-->
 </form>
 <?py #endif ?>
-    </div>
-</div>
+</div><!--cnt-->
 <?py include("footer.html") ?>
