@@ -1,8 +1,16 @@
 <?py include("header.html") ?>
-<div>
 <?py 
 lists = _context.get("lists", [])
 errors_msg = _context.get("errors_msg")
+
+#modify
+posttitle = _context.get("post.title")
+postcategory = _context.get("post.category")
+posturl = _context.get("post.url")
+posttags = _context.get("post.tags")
+postkeyword = _context.get("post.keyword")
+postcontent = _context.get("post.content")
+
 ?>
 <?py include("errors.html") ?>
 <div class="cnt">
@@ -60,6 +68,8 @@ return false;
 
 $.each($("#fields").find("input, textarea"), function(n, i){
     i = $(i);
+    if(!i.attr("rel"))
+        return;
     i.attr("title", i.attr("rel"));
     i.blur(function(e){
         if($.trim(i.val()) == "") {
@@ -76,6 +86,37 @@ $.each($("#fields").find("input, textarea"), function(n, i){
 $("#show_other").click(function(){
     $("#other").toggle();
 });
+select_cate = $("#post\\.category");
+select_cate.change(function(e){
+        if($("#post\\.category option:selected").val() == "#new#") {
+            $("#newcategory").toggle();
+        } else {
+            $("#newcategory").hide();
+        }
+        $("#post\\.category option[value='#choice#']").remove();
+});
+
+$("#create_category").click(function(){
+        var cate_title = $("#newcategory input[name='category.title']").val(),
+            cate_url = $("#newcategory input[name='category.url']").val(),
+            cate_descrip = $("#newcategory input[name='category.discription']").val() ;
+        
+        $.post("#{ config.BLOG_ADMIN_PATH }category/",
+               {"action": "new",
+                "category.title": cate_title,
+                "category.url": cate_url,
+                "category.description": cate_descrip, },
+               function(r){
+                    if(r == "ok") {
+                        select_cate.append(["<option value='", cate_url, "'>", cate_title, "</option>"].join(""));
+                        $("#newcategory").hide();
+                    } else {
+                        alert(r);
+                    }
+               }, "json");
+
+});
+
 
 });
 -->
@@ -84,31 +125,45 @@ $("#show_other").click(function(){
 <div class="respond">
     <div id="fields">
     <hr>
-    <input type="text" rel="标题" name="post.title">
+    <input type="text" rel="标题" name="post.title" value="#{ posttitle }">
     <select class="input" name="post.category" id="post.category">
-        <option value="cc">分类选择</option>
-        <option value="gg">分类一</option>
+        <option value="#choice#">分类选择</option>
+<?py for i in all_category : ?>
+<?py     if postcategory and postcategory == i.key().name() : ?>
+<option selected="selected" value="#{ i.key().name() }">#{ i.title }</option>
+<?py     else : ?>
+<option value="#{ i.key().name() }">#{ i.title }</option>
+<?py     #endif ?>
+<?py #end ?>
+        <option value="#new#">创建分类</option>
     </select>
+<div id="newcategory" class="hidden">
+    <input type="text" rel="分类名称" name="category.title">
+    <input type="text" rel="分类URL" name="category.url">
+    <textarea rel="分类描述" name="category.description"></textarea>
+<a id="create_category" class="art sm pointer" href="#">
+ &nbsp;创建分类 
+</a>
+</div>
 <a id="show_other" class="art sm pointer" href="#">
     其他
 </a>
 <div id="other" class="hidden">
-    <input type="text" rel="URL" name="post.url">
-    <input type="text" rel="关键字" name="post.keyword">
-    <input type="text" rel="Tag标签" name="post.tags">
+    <input type="text" rel="URL" name="post.url" value="#{ posturl }">
+    <input type="text" rel="关键字" name="post.keyword" value="#{ postkeyword }">
+    <input type="text" rel="Tag标签" name="post.tags" value="#{ posttags }">
     <hr>
 </div>
-    <textarea id="editor" name="post.content"></textarea>
+    <textarea id="editor" name="post.content">#{ postcontent }</textarea>
+    <input type="hidden" name="post.format" value="#{ config.POST_EDITOR }">
     </div>
 <div class="submit">
     <div class="outbl sbm">
     <input type="submit" id="submit">
     </div>
 </div>
-</div>
 </form>
 <?py #endif ?>
     </div>
-</div>
 </div>
 <?py include("footer.html") ?>

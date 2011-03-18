@@ -9,8 +9,22 @@ from hashlib import md5
 
 from google.appengine.ext import db
 from google.appengine.ext.db import Model as DBModel
+run_in_transaction = db.run_in_transaction
+Rollback = db.Rollback
+Key = db.Key
 
 from cache import memcache
+
+
+def with_transaction(func):
+    def wapper(*arg, **kw):
+        with_transaction = kw.pop("with_transaction", True)
+        if with_transaction:
+            db.run_in_transaction(wapper, with_transaction=False, *arg, **kw)
+
+        return func(*arg, **kw)
+    
+    return wapper
 
 def memcached(key, cache_time=0, key_suffix_calc_func=None, namespace=None):
     def wrap(func):
@@ -57,7 +71,6 @@ class Setting(DBModel):
             if useMemoryCache:
                 _settingcache[name] = result
             memcache.set("setting.%s" % name, result, 0)
-            logging.info("ggc")
             return result
         except:
             return default
@@ -197,6 +210,13 @@ class BaseModel(DBModel):
             tval = cls.all().count(None) if func == None else func(cls.all()).count(None)
             Setting.set(tname, tval, False)
         return tval
+    
+    @classmethod
+    def refresh_total(cls):
+        tname = "%s_%s" % (TABLE_COUNT_TAG_PRE, cls.__name__)
+        tval = cls.all().count(None)
+        Setting.set(tname, tval, False)
+
 
 
 def toBlob(val):
@@ -218,13 +238,16 @@ class User(BaseModel):
 
     #email = db.EmailProperty() #key_name as email
 
-
     @classmethod
     def check(cls, email, password):
         user = cls.get_by_key_name(email)
         if user and user.password == md5(password).hexdigest():
             return user
         return None
+
+    @classmethod
+    def by_email(cls, email):
+        return User.get_by_key_name(email)
 
 class Category(BaseModel):
     ishidden = db.BooleanProperty(default=False)
@@ -234,6 +257,22 @@ class Category(BaseModel):
     order = db.IntegerProperty(default=0)
     belong = db.SelfReferenceProperty(collection_name="children")
     #url = db.StringProperty()    #key_name as url
+
+    @classmethod
+    def get_all(cls):
+        return cls.all().order("order")
+
+    @classmethod
+    @with_transaction
+    def new(cls, url, title, description, order=0, belong=None, with_transaction=True):
+        c = cls(key_name=url,
+                title=title,
+                description=description,
+                order=order,
+                belong=belong)
+        db.put(c) 
+        return c
+#        cls.incr_counter("%s_%s" % (TABLE_COUNT_TAG_PRE, cls.__name__))
 
 class Tag(BaseModel):
     # key_name as title
@@ -258,20 +297,19 @@ class PostStatus(object):
     HIDDEN = 1
     TOP = 2
     PAGE = 3
-
+("html", "rest", "markdown", "bbcode")
 class PostFormat(object):
-    PLAIN = 0               #like HTML, txt
-    MARKDOWN = 1            #markdown
-    RST = 2                 #ReStructuredText
-    UBB = 3                 #UBB
+    PLAIN = "html"               #like HTML, txt
+    MARKDOWN = "markdown"        #markdown
+    RST = "rest"                 #ReStructuredText
+    UBB = "bbcode"               #UBB
 
 class Post(BaseModel):
     """ url 只是存在一个可能的别名,实际匹配时则直接匹配realurl(现在存放在key_name中) """
 
-    #realurl = db.StringProperty()   #key_name as realurl
-    status = db.StringProperty(default=PostStatus.NORMAL)
+    status = db.IntegerProperty(default=PostStatus.NORMAL)
     enablecomment = db.BooleanProperty(default=True)
-    format = db.IntegerProperty(default=PostFormat.PLAIN, indexed=False) # 解析格式
+    format = db.StringProperty(default=PostFormat.PLAIN, indexed=False) # 解析格式
 
     category = db.ReferenceProperty(Category, collection_name="posts")
     author = db.ReferenceProperty(User, collection_name="posts")
@@ -284,6 +322,25 @@ class Post(BaseModel):
     views = db.IntegerProperty(default=0)
 
     tags = db.StringListProperty()
+
+    @classmethod
+    @with_transaction
+    def new(cls, title, category_keyname, author_keyname, url, keyword, tags, content, status=PostStatus.NORMAL, format=PostFormat.PLAIN, enablecomment=True):
+        c = Key.from_path("Category", category_keyname)
+        a = Key.from_path("User", author_keyname)
+        p = cls(#key_name=realurl, 因为realurl存在修改的可能而key_name无法修改;可能需要key_id数字索引;realurl需要存储之后才能获得; 
+                title=title,
+                category=c,
+                author=a,
+                url=url,
+                keyword=keyword,
+                tags=tags,
+                content=content,
+                format=format,
+                enablecomment=enablecomment )
+        db.put(p)
+        return p
+
 
 
 class CommentType(object):
