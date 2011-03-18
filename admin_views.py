@@ -6,7 +6,8 @@
 import logging
 
 from config import config
-from common import BlogHandler, AdminHandler
+from common import BlogHandler, AdminHandler, randstr, json
+from model import run_in_transaction, Rollback, Category, Post, PostFormat
 
 class LoginHandler(BlogHandler):
     def get(self):
@@ -26,6 +27,25 @@ class AdminIndexHandler(AdminHandler):
         self.render("admin_page.html", { "page_name": u"站点管理",
                                          "page_title": u"基本信息", })
 
+class AdminCategoryHandler(AdminHandler):
+
+    def post(self):
+        logging.info(self.request.POST)
+        self.set_content_type('json')
+        pdict = self.request.POST
+        action = pdict.get("action", "")
+        
+        if action == "new":
+            try:
+                Category.new(pdict.get("category.url", randstr()),
+                             pdict.get("category.title"),
+                             pdict.get("category.discription") )
+                Category.refresh_total()
+            except Rollback, ex:
+                self.jsonout(ex)
+            else:
+                self.jsonout("ok")
+
 class AdminAddPostHandler(AdminHandler):
     def get(self):
         editor = self.GET.get("editor")
@@ -34,6 +54,11 @@ class AdminAddPostHandler(AdminHandler):
         context = {}
 #        config.POST_EDITOR = ""
         editor = config.POST_EDITOR
+        
+        #for i in xrange(5):
+        #    c = Category(key_name="cate%s"%i, title=randstr(), description=randstr(10,20))
+        #    c.put()
+
         if not editor.strip(): #首次编辑, 选择编辑器
             context["page_name"] = u"编辑器选择"
             context["page_title"] = u"首次编辑文章,请选择你所喜爱的文本编辑"
@@ -41,11 +66,40 @@ class AdminAddPostHandler(AdminHandler):
         else:
             context["page_name"] = u"添加文章"
             context["page_title"] = u"添加文章" 
+            context["all_category"] = Category.get_all()
 
         self.render("admin_post_new.html", context)
 
     def post(self):
-        logging.info(self.request.POST)
+        pdict = self.request.POST
+        
+        try:
+            #def new(cls,title, category_keyname, author_keyname, url, keyword, tags, content, status, format=PostFormat.PLAIN, enablecomment=True):
+            raise Exception(u"好欢乐的错误啊")
+            p = Post.new(title=pdict.get("post.title"),
+                         category_keyname=pdict.get("post.category"),
+                         author_keyname=self.session.get("curr_ukey"),
+                         url=pdict.get("post.url"),
+                         keyword=pdict.get("post.keyword").split(","),
+                         tags=pdict.get("post.tags").split(","),
+                         format=pdict.get("post.format") )
+        except Exception, ex:
+            context = {}
+            context.update(self.request.POST)
+            context["errors_msg"] = ex
+            context["page_name"] = u"添加文章"
+            context["page_title"] = u"添加文章" 
+            context["all_category"] = Category.get_all()
+            logging.info(context)
+            self.render("admin_post_new.html", context)
+        else:
+            self.redirect("../../")
+            
+            
+
+        
+
+    
 
 
 
@@ -54,7 +108,6 @@ class AdminConfigHandler(AdminHandler):
     def get(self):
         
         context = {"page_title": u"站点设置", }
-        
         self.render("admin_config.html", context)
 
     def post(self):
