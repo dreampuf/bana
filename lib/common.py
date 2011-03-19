@@ -22,19 +22,36 @@ from tenjin.helpers import *
 escape , to_str = tenjin.helpers.escape, tenjin.helpers.to_str
 from gaesession import SessionMiddleware, get_current_session 
 
+
 from model import User
+from model import Category
+from model import Post 
 
 pjoin = os.path.join
-tplengine = tenjin.Engine(path=[pjoin("static", "views", "iphonsta")], cache=tenjin.MemoryCacheStorage(), preprocess=True)  
-
+tplengine = tenjin.Engine(indent=4, path=[pjoin("static", "views", "iphonsta")], cache=tenjin.MemoryCacheStorage(), preprocess=True)  
 
 COOKIE_KEY = "0883ba4c4fd211e0a727485b39b890e1"   #this is your code 
-
 def session_middleware(app):
     from google.appengine.ext.appstats import recording  #for developing
     app = SessionMiddleware(app, cookie_key=COOKIE_KEY)
     app = recording.appstats_wsgi_middleware(app)
     return app
+
+def format_content(content, format="html"):
+    if format == "html":
+        return content
+    elif format == "rest":
+        from docutils.core import publish_parts
+        doc = publish_parts(content ,writer_name='html', settings_overrides= {"file_insertion_enabled": 0,
+                                                                              "raw_enabled": 0,
+                                                                              "_disable_config": 1, })
+        return doc["body"]
+    elif format == "markdown":
+        from markdown import markdown
+        return markdown(content, output_format="html4")
+    elif format == "ubbcode":
+        from postmarkup import render_bbcode
+        return render_bbcode(content, encoding=config.CHARSET, paragraphs=True)
 
 def randstr(start=5, end=10, case=string.lowercase):
     return "".join([random.choice(case) for i in xrange(random.randint(start, end))])
@@ -45,6 +62,31 @@ def soddy():
         soddy = User(key_name="soddyque@gmail.com", nickname=u"米落", password="123")  
         soddy.put()
     return soddy
+
+def genid(n):
+    while True:
+        yield n
+        n += 1
+
+def gender_url(url, filter_func=lambda url: Post.get_by_path(url)):
+    p = filter_func(url) 
+    if not p:
+        return url
+    genter = genid(1)
+    if url.find("/") != -1:
+        if url.split("/")[-1].find(".") != -1:
+            ori, ext = url[:url.rfind(".")], url[url.rfind("."):]
+        else:
+            ori, ext = url[:url.rfind("/")], url[url.rfind("/"):]
+    elif url.find(".") != -1:
+        ori, ext = url[:url.rfind(".")], url[url.rfind("."):]
+    else:
+        ori, ext = url, ""
+
+    while(filter_func(url)):
+        url = "%s%d%s" % (ori, genter.next(), ext)
+    return url
+    
 
 url_mapper = {
         "%category%": lambda p: p.category.title,
@@ -60,7 +102,7 @@ def realurl(post):
     for key, val in url_mapper.items():
         if url.find(key) != -1:
             url = url.replace(key, str(val(post)))
-    return url
+    return gender_url(url)
 
 ZERO_TIME_DELTA = datetime.timedelta(0)
 class LocalTimezone(datetime.tzinfo):
@@ -143,7 +185,13 @@ class AdminHandler(BaseHandler):
         return self.request.session.get("curr_ukey", None)
 
 class BlogHandler(BaseHandler):
-    pass 
+    def render(self, tplname, context=None, globals=None, layout=False):
+        context = context or {}
+        #context["categories_title"] = u"分类"
+        #context["pages_title"] = u"其他"
+        context["categories"] = Category.get_categories()
+        
+        super(BlogHandler, self).render(tplname, context, globals, layout)
 
 
 

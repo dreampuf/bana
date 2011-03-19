@@ -16,6 +16,7 @@ from admin_views import AdminAddPostHandler
 from admin_views import AdminConfigHandler
 from admin_views import AdminCategoryHandler
 from admin_views import AdminPostHandler
+from admin_views import AdminModifyPostHandler
 import que
 from common import session_middleware
 
@@ -24,6 +25,7 @@ def main():
     application = que.WSGIApplication([
     (BLOG_ADMIN_PATH + "post/", AdminPostHandler), 
     (BLOG_ADMIN_PATH + "post/new/", AdminAddPostHandler),
+    (BLOG_ADMIN_PATH + "post/(?P<post_id>\d+)/", AdminModifyPostHandler),
     (BLOG_ADMIN_PATH + "login/", LoginHandler), 
     (BLOG_ADMIN_PATH + "config/", AdminConfigHandler), 
     (BLOG_ADMIN_PATH + "category/", AdminCategoryHandler), 

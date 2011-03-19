@@ -57,6 +57,64 @@ class AdminPostHandler(AdminHandler):
                    "pager": pager }
         self.render("admin_post.html", context)
 
+class AdminModifyPostHandler(AdminHandler):
+    def get(self, post_id):
+        p = Post.get_by_id(int(post_id)) if post_id.isdigit() else None
+        if not p:
+            self.redirect(config.BLOG_ADMIN_PATH + "post/")
+            return
+        
+        context = {"page_name": u"编辑文章",
+                   "page_title": u"编辑文章",
+                   "all_category": Category.get_all(),
+
+                   "post.title": p.title,
+                   "post.category": p.category.key().name(),
+                   "post.url": p.url,
+                   "post.tags": ",".join(p.tags),
+                   "post.keyword": ",".join(p.keyword),
+                   "post.content": p.content, }
+        self.render("admin_post_editor.html", context)
+
+    def post(self, post_id):
+        post_id = int(post_id)
+        p = Post.id(post_id)
+        if not p:
+            self.redirect(config.BLOG_ADMIN_PATH + "post/")
+            return
+        pdict = self.request.POST
+
+        cur_tags = set(pdict.get("post.tags").split(","))
+        old_tags = set(p.tags)
+        for i in old_tags^(cur_tags&old_tags):
+            Tag.Decr(i)
+        for i in cur_tags^(cur_tags&old_tags):
+            Tag.Incr(i)
+        tags = list(cur_tags)
+
+        try:
+            p = Post.modify(post_id=post_id,
+                            title=pdict.get("post.title"),
+                            category_keyname=pdict.get("post.category"),
+                            author_keyname=self.session.get("curr_ukey"),
+                            url=pdict.get("post.url"),
+                            keyword=pdict.get("post.keyword").split(","),
+                            tags=pdict.get("post.tags").split(","),#tags,
+                            content=pdict.get("post.content"),
+                            format=pdict.get("post.format") )
+            p.realurl = realurl(p)
+            p.put()
+        except Exception, ex:
+            logging.info(ex)
+            context = {}
+            context.update(self.request.POST)
+            context["errors_msg"] = ex
+            context["page_name"] = u"修改文章"
+            context["page_title"] = u"修改文章" 
+            context["all_category"] = Category.get_all()
+            self.render("admin_post_editor.html", context)
+        else:
+            self.redirect(config.BLOG_ADMIN_PATH + "post/")
 
 class AdminAddPostHandler(AdminHandler):
     def get(self):
@@ -66,10 +124,6 @@ class AdminAddPostHandler(AdminHandler):
         context = {}
 #        config.POST_EDITOR = ""
         editor = config.POST_EDITOR
-        
-        #for i in xrange(5):
-        #    c = Category(key_name="cate%s"%i, title=randstr(), description=randstr(10,20))
-        #    c.put()
 
         if not editor.strip(): #首次编辑, 选择编辑器
             context["page_name"] = u"编辑器选择"
@@ -80,7 +134,7 @@ class AdminAddPostHandler(AdminHandler):
             context["page_title"] = u"添加文章" 
             context["all_category"] = Category.get_all()
 
-        self.render("admin_post_new.html", context)
+        self.render("admin_post_editor.html", context)
 
     def post(self):
         pdict = self.request.POST
@@ -99,7 +153,7 @@ class AdminAddPostHandler(AdminHandler):
                          tags=tags,
                          content=pdict.get("post.content"),
                          format=pdict.get("post.format") )
-            p.url = realurl(p)
+            p.realurl = realurl(p)
             p.put()
             Post.refresh_total()
 
@@ -110,10 +164,9 @@ class AdminAddPostHandler(AdminHandler):
             context["page_name"] = u"添加文章"
             context["page_title"] = u"添加文章" 
             context["all_category"] = Category.get_all()
-            logging.info(context)
-            self.render("admin_post_new.html", context)
+            self.render("admin_post_editor.html", context)
         else:
-            self.redirect("../../post/")
+            self.redirect(config.BLOG_ADMIN_PATH + "post/")
             
 
 class AdminConfigHandler(AdminHandler):

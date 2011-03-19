@@ -8,7 +8,7 @@ import cPickle as pickle
 from hashlib import md5
 
 from google.appengine.ext import db
-from google.appengine.ext.db import Model as DBModel
+from google.appengine.ext.db import Model
 run_in_transaction = db.run_in_transaction
 Rollback = db.Rollback
 Key = db.Key
@@ -49,7 +49,7 @@ def memcached(key, cache_time=0, key_suffix_calc_func=None, namespace=None):
 
 TABLE_COUNT_TAG_PRE = "tablecount"
 _settingcache = {}
-class Setting(DBModel):
+class Setting(Model):
     name=db.StringProperty()
     value=db.TextProperty()
 
@@ -134,7 +134,7 @@ def func2str(func):
     fcode = func.func_code
     return md5("%s%s" % (fcode.co_code, fcode.co_consts)).hexdigest()
 
-class BaseModel(DBModel):
+class BaseModel(Model):
     _lastQuery = None
 
     def put(self, **kw):
@@ -263,6 +263,11 @@ class Category(BaseModel):
         return cls.all().order("order")
 
     @classmethod
+    def get_categories(cls):
+        cates = cls.get_all()
+        return [{"url": "/category/%s"%i.key().name(), "title": i.title } for i in cates]
+
+    @classmethod
     @with_transaction
     def new(cls, url, title, description, order=0, belong=None, with_transaction=True):
         c = cls(key_name=url,
@@ -315,11 +320,12 @@ class PostFormat(object):
     UBB = "bbcode"               #UBB
 
 class Post(BaseModel):
-    """ url 只是存在一个可能的别名,实际匹配时则直接匹配realurl(现在存放在key_name中) """
-
+    """ url 只是存在一个可能的别名,实际匹配时则直接匹配realurl """
+    #key_name=realurl, 因为realurl存在修改的可能而key_name无法修改;可能需要key_id数字索引;realurl需要存储之后才能获得; 
     status = db.IntegerProperty(default=PostStatus.NORMAL)
     enablecomment = db.BooleanProperty(default=True)
     format = db.StringProperty(default=PostFormat.PLAIN, indexed=False) # 解析格式
+    realurl = db.StringProperty()
 
     category = db.ReferenceProperty(Category, collection_name="posts")
     author = db.ReferenceProperty(User, collection_name="posts")
@@ -339,8 +345,7 @@ class Post(BaseModel):
         c = Key.from_path("Category", category_keyname)
         a = Key.from_path("User", author_keyname)
         
-        p = cls(#key_name=realurl, 因为realurl存在修改的可能而key_name无法修改;可能需要key_id数字索引;realurl需要存储之后才能获得; 
-                title=title,
+        p = cls(title=title,
                 category=c,
                 author=a,
                 url=url,
@@ -351,6 +356,40 @@ class Post(BaseModel):
                 enablecomment=enablecomment )
         db.put(p)
         return p
+
+    @classmethod
+    @with_transaction
+    def modify(cls, post_id, title, category_keyname, author_keyname, url, keyword, tags, content, status=PostStatus.NORMAL, format=PostFormat.PLAIN, enablecomment=True):
+        p = cls.id(post_id)
+        #cur_tags = set(tags)
+        #old_tags = set(p.tags)
+        #for i in old_tags^(cur_tags&old_tags):
+        #    Tag.Decr(i)
+        #for i in cur_tags^(cur_tags&old_tags):
+        #    Tag.Incr(i)
+
+        c = Key.from_path("Category", category_keyname)
+        a = Key.from_path("User", author_keyname)
+        
+        p.title=title
+        p.category=c
+        p.author=a
+        p.url=url
+        p.keyword=keyword
+        p.tags=tags
+        p.content=content
+        p.format=format
+        p.enablecomment=enablecomment
+        db.put(p)
+        return p
+
+    @classmethod
+    def id(cls, pids):
+        return Post.get_by_id(pids)
+
+    @classmethod
+    def get_by_path(cls, path, keys_only=False):
+        return Post.all(keys_only=keys_only).filter("realurl =", path).get()
 
 
 

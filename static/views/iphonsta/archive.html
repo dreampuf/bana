@@ -1,81 +1,43 @@
-<?php get_header(); ?>
-				  <?php /* If this is a category archive */ if (is_category()) { ?>
-                    <div class="pagetitle"><?php printf(__('&#8216;%s&#8217; Category'), single_cat_title('', false)); ?></div>
-                  <?php /* If this is a tag archive */ } elseif( is_tag() ) { ?>
-                    <div class="pagetitle"><?php printf(__('&#8216;%s&#8217;'), single_tag_title('', false) ); ?></div>
-                  <?php /* If this is a daily archive */ } elseif (is_day()) { ?>
-                    <div class="pagetitle"><?php printf(_c('%s|Daily archive page'), get_the_time(__('F jS, Y'))); ?></div>
-                  <?php /* If this is a monthly archive */ } elseif (is_month()) { ?>
-                    <div class="pagetitle"><?php printf(_c('%s|Monthly archive page'), get_the_time(__('F, Y'))); ?></div>
-                  <?php /* If this is a yearly archive */ } elseif (is_year()) { ?>
-                    <div class="pagetitle"><?php printf(_c('%s|Yearly archive page'), get_the_time(__('Y'))); ?></div>
-                  <?php /* If this is an author archive */ } elseif (is_author()) { ?>
-                    <div class="pagetitle"><?php _e('Author Archive'); ?></div>
-                  <?php /* If this is a paged archive */ } elseif (isset($_GET['paged']) && !empty($_GET['paged'])) { ?>
-                    <div class="pagetitle"><?php _e('Blog Archives'); ?></div>
-                  <?php } ?>
-        <div id="cnt">
-        
-<?php if (have_posts()) : ?>
-	<?php while (have_posts()) : the_post();$first++; ?>
-		<?php if ( 1 == $first && !is_paged() ) { ?>
-        
-                  	<a class="art" href="<?php the_permalink() ?>" id="post-<?php the_ID(); ?>">
-	
-                    	<?php
-                    	$imgsrcparam = array(
-						'class'	=> "prv",
-						'alt'	=> trim(strip_tags( $post->post_excerpt )),
-						'title'	=> trim(strip_tags( $post->post_title )),
-						);
-                    	$thumbID = get_the_post_thumbnail( $post->ID, 'thumbnail', $imgsrcparam ); ?>
-                        <h2><?php the_title(); ?></h2>
-                        
-                     	<?php echo "$thumbID"; ?>
-                        
-                        <?php the_excerpt(); ?>
-                    </a>
-
-          <?php } elseif ( 2 == $first && !is_paged() ) { ?>
-          
-                    	<?php
-                    	$imgsrcparam = array(
-						'class'	=> "prv",
-						'alt'	=> trim(strip_tags( $post->post_excerpt )),
-						'title'	=> trim(strip_tags( $post->post_title )),
-						);
-                    	$thumbID = get_the_post_thumbnail( $post->ID, 'thumbnail', $imgsrcparam ); ?>
-                    	
-                    <a class="art" href="<?php the_permalink() ?>" id="post-<?php the_ID(); ?>">
-                        <h2><?php the_title(); ?></h2>
-    
-	                    <?php echo "$thumbID"; ?>
-                        
-                        <?php the_excerpt(); ?>
-                    </a>
-          
-          <?php } else { ?>
-         
-                <a class="art sm" href="<?php the_permalink() ?>">
-                    <h2><?php the_title(); ?></h2><?php comments_number('<span>0</span>','<span>1</span>','<span>%</span>'); ?>
-                </a>
-
-          <?php } ?>
- 
-	<?php endwhile; ?>
-<?php endif; ?>
-               
-        
-        
-        
-  
-
-		<?php if(function_exists('wp_pagenavi')) { wp_pagenavi(); } ?>
-        
-        
-        
-
-
-        
+<?py 
+include("header.html")
+post = _context.get("post")
+?>
+<div class="pagetitle">${ post.title if post else "" }</div>
+<div id="cnt">
+<?py if post: ?>
+    <div class="art">
+        <p class="postmetadata">${ FormatTime(post.created, config.DATEMINUTE_FORMAT) } category:#{ post.category.title or '无'} tags:${ ",".join(post.tags) }
+        </p>
+        <div class="entry">
+    <?py     #for _ in cache_as('post:%s' % post.key().id(), config.POST_CACHE_TIME): ?>
+    #{{ format_content(post.content, post.format) }}
+    <?py     ##endfor ?>
         </div>
-<?php get_footer(); ?>
+    </div>
+    <div id="commentlist">
+        <ol class="commentlist"></ol>
+    </div>
+    <div class="comments">
+        <div id="cmnts">
+            没有评论
+        </div>
+    </div>
+    <div id="respond">
+        <div id="uit">
+<?py
+?>
+            <form action="#{{ config.BLOG_PATH }}comment/" method="post" id="commentform">
+                <p>您当前登录的用户为: 脑残级别玩家</p>
+                <p><textarea name="comment" id="comment" cols="100%" rows="10" tabindex="1"></textarea></p>
+                <p><label for="bbcode" onclick="">启用BBCode</label> <input name="bbcode" type="checkbox" id="bbcode" tabindex="2"/></p>
+                <div class="submit"><div class="outbl sbm"><input name="submit" type="submit" id="submit" tabindex="3" value="来一发"/></div></div>
+            </form>
+            <p>您需要<a href="/login">登录</a>您的Google账号才能进行评论。</p>
+        </div>
+    </div>
+<?py else: ?>
+40404044040404040404040400404040404004
+<?py #endif ?>
+</div>
+</div>
+<?py include("footer.html") ?>

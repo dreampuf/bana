@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# discription: main 
+# discription: blog 
 # author: dreampuf
 
 import sys, os, logging 
@@ -13,16 +13,12 @@ from google.appengine.ext.webapp import util
 
 import que
 from common import BlogHandler 
-
-from cache import locache
-class MainHandler(BlogHandler):
-    def get(self):
-        self.render("index.html", { "time" : "<strong>cc</strong>ccc"} )
-        #write("Hello World!")
-
+from blog_views import IndexHandler
+from blog_views import ViewHandler
 
 def main():
-    application = que.WSGIApplication([("^/$", MainHandler)])
+    application = que.WSGIApplication([("^/$", IndexHandler),
+                                       ("^/(?P<path>.*)$", ViewHandler) ])
 
     util.run_wsgi_app(application)
 

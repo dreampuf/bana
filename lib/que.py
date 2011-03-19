@@ -611,8 +611,6 @@ class WSGIApplication(object):
                         request_path, handler, format_exc())
 
                         response, handler = self.handle_not_found(request, start_response)
-                        # make future requests not to match other handler
-                        # 不删除它，以免后续的访问可能匹配其他的handler
                         self.__url_mappings[regexp] = handler, response.__class__
                         break
                 handler = handler(request, response)
@@ -642,8 +640,6 @@ class WSGIApplication(object):
             elif method == "TRACE":
                 handler.trace(*groups, **groupdict)
             else:
-                # only speed up for GET & POST
-                # 只为GET和POST方法提速绑定，因为getattr比较慢
                 getattr(handler, method.lower())(*groups, **groupdict)
             handler.after(*groups, **groupdict)
         except Exception, e:

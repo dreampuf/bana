@@ -11,6 +11,7 @@ from cache import LocalCache, MemCache, CacheProperty
 from docutils.core import publish_parts
 from google.appengine.api import urlfetch
 from lib import config
+from common import gender_url
 
 class CacheTest(unittest.TestCase):
 
@@ -115,6 +116,15 @@ class ConfigTest(unittest.TestCase):
         self.assertTrue(not config.CURPATH is None)
         #logging.info(config.CURPATH)
 
+class CommonTest(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_gender_url(self):
+        self.assertEquals("s", gender_url("s", filter_func=lambda x: x not in ("s")))
+        self.assertEquals("s/s/s2.html", gender_url("s/s/s.html", filter_func=lambda x: x in ("s/s/s.html", "s/s/s1.html")))
+        self.assertEquals("g3.html", gender_url("g.html", filter_func=lambda x: x in ("g.html", "g1.html", "g2.html")))
+        self.assertEquals("xxxx2", gender_url("xxxx", filter_func=lambda x: x in ("xxxx", "xxxx1")))
 
 class AppEngineAPITest(unittest.TestCase):
     
