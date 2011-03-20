@@ -1,1 +1,2 @@
-修改Post时存在可能的Tag修改与Post修改不同步,因为没有在同一个transaction
+- db.put一个实体后在同一个transaction db.get出来的对象,调用其put方法仍然会再次保存.
+- 修改Post时存在可能的Tag修改与Post修改不同步,因为没有在同一个transaction

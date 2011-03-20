@@ -19,7 +19,6 @@ import que
 import tenjin
 tenjin.gae.init()
 from tenjin.helpers import *
-escape , to_str = tenjin.helpers.escape, tenjin.helpers.to_str
 from gaesession import SessionMiddleware, get_current_session 
 
 
@@ -28,7 +27,7 @@ from model import Category
 from model import Post 
 
 pjoin = os.path.join
-tplengine = tenjin.Engine(indent=4, path=[pjoin("static", "views", "iphonsta")], cache=tenjin.MemoryCacheStorage(), preprocess=True)  
+tplengine = tenjin.Engine(path=[pjoin("static", "views", "iphonsta")], preprocess=True)  
 
 COOKIE_KEY = "0883ba4c4fd211e0a727485b39b890e1"   #this is your code 
 def session_middleware(app):

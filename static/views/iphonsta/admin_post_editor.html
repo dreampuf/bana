@@ -31,10 +31,7 @@ if _context.get("first"):
 <a class="art sm pointer" href="?editor=ubb">
     UBB
 </a>
-
-<?py else: 
-
-?>
+<?py else: ?>
 <script type="text/javascript" src="#{ config.BASEURL }/js/markitup/jquery.markitup.js"></script>
 <script type="text/javascript" src="#{ config.BASEURL }/js/markitup/sets/#{ config.POST_EDITOR }.js"></script>
 <link rel="stylesheet" type="text/css" href="#{ config.BASEURL }/js/markitup/skins/simple/style.css" />
@@ -97,7 +94,7 @@ select_cate.change(function(e){
 $("#create_category").click(function(){
         var cate_title = $("#newcategory input[name='category.title']").val(),
             cate_url = $("#newcategory input[name='category.url']").val(),
-            cate_descrip = $("#newcategory input[name='category.discription']").val() ;
+            cate_descrip = $("#newcategory input[name='category.description']").val() ;
         
         $.post("#{ config.BLOG_ADMIN_PATH }category/",
                {"action": "new",
@@ -108,6 +105,9 @@ $("#create_category").click(function(){
                     if(r == "ok") {
                         select_cate.append(["<option value='", cate_url, "'>", cate_title, "</option>"].join(""));
                         $("#newcategory").hide();
+                        $("#newcategory input[name='category.title']").val("");
+                        $("#newcategory input[name='category.url']").val("");
+                        $("#newcategory input[name='category.description']").val("");
                     } else {
                         alert(r);
                     }
@@ -125,15 +125,15 @@ $("#create_category").click(function(){
     <hr>
     <input type="text" rel="标题" name="post.title" value="#{ posttitle }">
     <select class="input" name="post.category" id="post.category">
-        <option value="#choice#">分类选择</option>
-<?py     for i in all_category : ?>
-<?py         if postcategory and postcategory == i.key().name() : ?>
+        <option value="#choice#">[分类选择]</option>
+<?py for i in all_category : ?>
+<?py if postcategory and postcategory == i.key().name() : ?>
 <option selected="selected" value="#{ i.key().name() }">#{ i.title }</option>
-<?py         else : ?>
+<?py else: ?>
 <option value="#{ i.key().name() }">#{ i.title }</option>
-<?py         #endif ?>
-<?py     #end ?>
-        <option value="#new#">创建分类</option>
+<?py #endif ?>
+<?py #endfor ?>
+        <option value="#new#">[创建分类]</option>
     </select>
         <div id="newcategory" class="hidden">
             <input type="text" rel="分类名称" name="category.title">

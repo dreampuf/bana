@@ -14,10 +14,12 @@ from google.appengine.ext.webapp import util
 import que
 from common import BlogHandler 
 from blog_views import IndexHandler
+from blog_views import CategoryHandler
 from blog_views import ViewHandler
 
 def main():
     application = que.WSGIApplication([("^/$", IndexHandler),
+                                       ("^/category/(?P<category_key_name>.*)/$", CategoryHandler),
                                        ("^/(?P<path>.*)$", ViewHandler) ])
 
     util.run_wsgi_app(application)

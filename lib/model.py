@@ -8,22 +8,25 @@ import cPickle as pickle
 from hashlib import md5
 
 from google.appengine.ext import db
+from google.appengine.ext import deferred
 from google.appengine.ext.db import Model
 run_in_transaction = db.run_in_transaction
 Rollback = db.Rollback
 Key = db.Key
 
+from django.dispatch import dispatcher
+
 from cache import memcache
 
+def sendsignal(signal=dispatcher.Any, *arg, **kw):
+    dispatcher.send(signal=signal, *arg, **kw)
 
 def with_transaction(func):
     def wapper(*arg, **kw):
         with_transaction = kw.pop("with_transaction", True)
         if with_transaction:
-            db.run_in_transaction(wapper, with_transaction=False, *arg, **kw)
-
+            return db.run_in_transaction(wapper, with_transaction=False, *arg, **kw)
         return func(*arg, **kw)
-    
     return wapper
 
 def memcached(key, cache_time=0, key_suffix_calc_func=None, namespace=None):
@@ -212,8 +215,11 @@ class BaseModel(Model):
         return tval
     
     @classmethod
-    def refresh_total(cls):
-        tname = "%s_%s" % (TABLE_COUNT_TAG_PRE, cls.__name__)
+    def refresh_total(cls, func=None):
+        if func:
+            tname = "%s_%s::%s" % (TABLE_COUNT_TAG_PRE, cls.__name__, func2str(func)) 
+        else:
+            tname = "%s_%s" % (TABLE_COUNT_TAG_PRE, cls.__name__)
         tval = cls.all().count(None)
         Setting.set(tname, tval, False)
 
@@ -265,7 +271,7 @@ class Category(BaseModel):
     @classmethod
     def get_categories(cls):
         cates = cls.get_all()
-        return [{"url": "/category/%s"%i.key().name(), "title": i.title } for i in cates]
+        return [{"url": "/category/%s/"%i.key().name(), "title": i.title } for i in cates]
 
     @classmethod
     @with_transaction
@@ -275,8 +281,15 @@ class Category(BaseModel):
                 description=description,
                 order=order,
                 belong=belong)
-        db.put(c) 
-        return c
+        return db.put(c) 
+
+    @classmethod
+    def id(cls, cid):
+        return cls.get_by_id(cid)
+
+    @classmethod
+    def keyname(cls, ckey):
+        return cls.get_by_key_name(ckey)
 #        cls.incr_counter("%s_%s" % (TABLE_COUNT_TAG_PRE, cls.__name__))
 
 class Tag(BaseModel):
@@ -312,12 +325,15 @@ class PostStatus(object):
     HIDDEN = 1
     TOP = 2
     PAGE = 3
-("html", "rest", "markdown", "bbcode")
+
 class PostFormat(object):
     PLAIN = "html"               #like HTML, txt
     MARKDOWN = "markdown"        #markdown
     RST = "rest"                 #ReStructuredText
     UBB = "bbcode"               #UBB
+
+class PostSignals(object):
+    New = "Post.New"
 
 class Post(BaseModel):
     """ url 只是存在一个可能的别名,实际匹配时则直接匹配realurl """
@@ -325,7 +341,7 @@ class Post(BaseModel):
     status = db.IntegerProperty(default=PostStatus.NORMAL)
     enablecomment = db.BooleanProperty(default=True)
     format = db.StringProperty(default=PostFormat.PLAIN, indexed=False) # 解析格式
-    realurl = db.StringProperty()
+    realurl = db.StringProperty(default="")
 
     category = db.ReferenceProperty(Category, collection_name="posts")
     author = db.ReferenceProperty(User, collection_name="posts")
@@ -354,8 +370,10 @@ class Post(BaseModel):
                 content=content,
                 format=format,
                 enablecomment=enablecomment )
-        db.put(p)
-        return p
+
+        deferred.defer(sendsignal, signal=PostSignals.New)
+
+        return db.put(p)
 
     @classmethod
     @with_transaction
@@ -380,8 +398,7 @@ class Post(BaseModel):
         p.content=content
         p.format=format
         p.enablecomment=enablecomment
-        db.put(p)
-        return p
+        return db.put(p)
 
     @classmethod
     def id(cls, pids):

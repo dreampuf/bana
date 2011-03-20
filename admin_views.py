@@ -5,9 +5,11 @@
 
 import logging
 
+from django.dispatch import dispatcher
+
 from config import config
 from common import BlogHandler, AdminHandler, randstr, json, realurl 
-from model import run_in_transaction, Rollback, Category, Post, Tag
+from model import run_in_transaction, Rollback, Category, Post, PostSignals, Tag
 
 class LoginHandler(BlogHandler):
     def get(self):
@@ -46,11 +48,17 @@ class AdminCategoryHandler(AdminHandler):
             else:
                 self.jsonout("ok")
 
+ADMINPOSTFILTER = lambda x:x.order("-created")
+def rtotal_AdminPost(*arg, **kw):
+    Post.refresh_total(func=ADMINPOSTFILTER)
+
+dispatcher.connect(rtotal_AdminPost, signal=PostSignals.New)
+
 class AdminPostHandler(AdminHandler):
     def get(self):
         p = self.GET.get("p")
         p = int(p) if p and p.isdigit() else 1
-        pager = Post.fetch_page(p)
+        pager = Post.fetch_page(p, func=ADMINPOSTFILTER)
 
         context = {"page_name": u"文章管理",
                    "page_title": u"文章管理",
@@ -93,7 +101,7 @@ class AdminModifyPostHandler(AdminHandler):
         tags = list(cur_tags)
 
         try:
-            p = Post.modify(post_id=post_id,
+            pkey = Post.modify(post_id=post_id,
                             title=pdict.get("post.title"),
                             category_keyname=pdict.get("post.category"),
                             author_keyname=self.session.get("curr_ukey"),
@@ -102,6 +110,7 @@ class AdminModifyPostHandler(AdminHandler):
                             tags=pdict.get("post.tags").split(","),#tags,
                             content=pdict.get("post.content"),
                             format=pdict.get("post.format") )
+            p = Post.id(pkey.id())
             p.realurl = realurl(p)
             p.put()
         except Exception, ex:
@@ -145,7 +154,7 @@ class AdminAddPostHandler(AdminHandler):
             for i in tags:
                 Tag.Incr(i)
 
-            p = Post.new(title=pdict.get("post.title"),
+            pkey = Post.new(title=pdict.get("post.title"),
                          category_keyname=pdict.get("post.category"),
                          author_keyname=self.session.get("curr_ukey"),
                          url=pdict.get("post.url"),
@@ -153,8 +162,9 @@ class AdminAddPostHandler(AdminHandler):
                          tags=tags,
                          content=pdict.get("post.content"),
                          format=pdict.get("post.format") )
+            p = Post.id(pkey.id())
             p.realurl = realurl(p)
-            p.put()
+            Post.put(p)
             Post.refresh_total()
 
         except Exception, ex:

@@ -9,14 +9,13 @@ len = _context.get("len", 5)
     <?py if p.index-len > 1: ?>
     <a class="nextpostslink" href="#{ argstyle }}1">[«]</a>
     <?py #endif ?>
-    <?py for i in range(p.index-len > 1 and p.index-len or 1,
-                        p.index+len <= p.last and p.index+len+1 or p.last+1): ?>
+    <?py for i in range(p.index-len > 1 and p.index-len or 1, p.index+len <= p.last and p.index+len+1 or p.last+1): ?>
             <?py if i == p.index : ?>
                 <span class="current">[${ i }]</span>
             <?py else: ?>
                 <a href="#{ argstyle }${ i }">[${ i }]</a>
             <?py #endif ?>
-    <?py #end ?>
+    <?py #endfor ?>
     <?py if p.index+len < p.last: ?>
         <a class="previouspostslink" href="#{ argstyle }#{ p.last }">[»]</a>
     <?py #endif ?>

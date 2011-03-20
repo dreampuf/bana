@@ -6,12 +6,12 @@ post = _context.get("post")
 <div id="cnt">
 <?py if post: ?>
     <div class="art">
-        <p class="postmetadata">${ FormatTime(post.created, config.DATEMINUTE_FORMAT) } category:#{ post.category.title or '无'} tags:${ ",".join(post.tags) }
+        <p class="postmetadata">${ FormatTime(post.created, config.DATEMINUTE_FORMAT) } &nbsp;&nbsp; category:#{ post.category.title or '无'} &nbsp;&nbsp; tags:${ ",".join(post.tags) }
         </p>
         <div class="entry">
-    <?py     #for _ in cache_as('post:%s' % post.key().id(), config.POST_CACHE_TIME): ?>
+    <?py for _ in cache_as('post:%s' % post.key().id(), config.POST_CACHE_TIME): ?>
     #{{ format_content(post.content, post.format) }}
-    <?py     ##endfor ?>
+    <?py #endfor ?>
         </div>
     </div>
     <div id="commentlist">
@@ -38,6 +38,5 @@ post = _context.get("post")
 <?py else: ?>
 40404044040404040404040400404040404004
 <?py #endif ?>
-</div>
 </div>
 <?py include("footer.html") ?>
