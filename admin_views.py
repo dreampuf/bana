@@ -5,10 +5,8 @@
 
 import logging
 
-from django.dispatch import dispatcher
-
 from config import config
-from common import BlogHandler, AdminHandler, randstr, json, realurl 
+from common import BlogHandler, AdminHandler, randstr, json, realurl, attach_event 
 from model import run_in_transaction, Rollback, Category, Post, PostSignals, Tag
 
 class LoginHandler(BlogHandler):
@@ -51,8 +49,7 @@ class AdminCategoryHandler(AdminHandler):
 ADMINPOSTFILTER = lambda x:x.order("-created")
 def rtotal_AdminPost(*arg, **kw):
     Post.refresh_total(func=ADMINPOSTFILTER)
-
-dispatcher.connect(rtotal_AdminPost, signal=PostSignals.New)
+attach_event(func=rtotal_AdminPost, signal=PostSignals.New)
 
 class AdminPostHandler(AdminHandler):
     def get(self):

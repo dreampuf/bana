@@ -11,6 +11,7 @@ from google.appengine.api import memcache
 from google.appengine.ext import deferred
 from google.appengine.ext.webapp import util
 from django.utils import simplejson as json
+from django.dispatch import dispatcher
 
 
 from config import config
@@ -35,6 +36,9 @@ def session_middleware(app):
     app = SessionMiddleware(app, cookie_key=COOKIE_KEY)
     app = recording.appstats_wsgi_middleware(app)
     return app
+
+def attach_event(func, signal):
+    dispatcher.connect(func, signal=signal)
 
 def format_content(content, format="html"):
     if format == "html":

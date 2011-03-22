@@ -35,6 +35,8 @@ class config(object):
     LOCAL_TIMEZONE = _ConfigProperty("LOCAL_TIMEZONE", 8)                               #时区
     TITLE = _ConfigProperty("TITLE", "bana")                                          #站点名称
     SUBTITLE = _ConfigProperty("SUBTITLE", "an other blog")                           #站点简介
+    ENABLE_COMMENT = _ConfigProperty("ENABLE_COMMENT", True)                          #允许回复
+    COMMENT_NEEDLOGINED = _ConfigProperty("COMMENT_NEEDLOGINED", False)               #回复需登录
     DESCRIPTION = _ConfigProperty("DESCRIPTION", "this descript in feed")             #FEED中的描述
     DATE_FORMAT = _ConfigProperty("DATE_FORMAT", "%Y-%m-%d")
     DATETIME_FORMAT = _ConfigProperty("DATETIME_FORMAT", "%Y-%m-%d %H:%M:%S")

@@ -188,17 +188,17 @@ class BaseModel(Model):
 
     @classmethod
     def cursorfetch(cls, cursor, plen = 20, func=None):
-        query = cls._lastQuery if cls._lastQuery else cls.all()
+        query = cls.all() #cls._lastQuery if cls._lastQuery else cls.all()
         query = func(query) if func else query
-        ls = query.with_cursor(cursor)[:plen]        
+        ls = query.with_cursor(cursor).fetch(plen)        
         cls._lastQuery = query
-        return ls 
+        return ls, query.cursor()
 
-    @classmethod
-    def cursor(cls):
-        if cls._lastQuery:
-            return cls._lastQuery.cursor()
-        return None
+    #@classmethod
+    #def cursor(cls):
+    #    if cls._lastQuery:
+    #        return cls._lastQuery.cursor()
+    #    return None
 
     @classmethod
     def total(cls, func=None):
@@ -371,7 +371,7 @@ class Post(BaseModel):
                 format=format,
                 enablecomment=enablecomment )
 
-        deferred.defer(sendsignal, signal=PostSignals.New)
+        deferred.defer(sendsignal, signal=PostSignals.New, post=p)
 
         return db.put(p)
 
@@ -419,7 +419,7 @@ class Comment(BaseModel):
     commenttype = db.StringProperty(default=CommentType.COMMENT)
 
     belong = db.ReferenceProperty(Post, collection_name="comments")
-    author = db.ReferenceProperty(User, collection_name="comments")
+#    author = db.ReferenceProperty(User, collection_name="comments")#
     re = db.SelfReferenceProperty(collection_name="children")
     content = db.TextProperty()
     created = db.DateTimeProperty(auto_now_add=True)
@@ -428,6 +428,41 @@ class Comment(BaseModel):
     website = db.LinkProperty()
     email = db.EmailProperty()
     hascheck = db.BooleanProperty(default=True)
+
+    @classmethod
+    @with_transaction
+    def new(cls, belong, nickname, email, re=None, ip=None, website=None, content=None, hascheck=True, commenttype=CommentType.COMMENT):
+        #belong = Post.id(belong)
+#        author = User.by_email(email)
+        email = toEmail(email)
+#        if author:
+#            author = User.by_email(author)
+        if re:
+            re = cls.id(re)
+        if website:
+            website = toLink(website)
+        
+        c = cls(parent=belong,
+                belong=belong,
+                nickname=nickname, #author.nickname if author else nickname,
+                email=email,#author.key().name() if author else email,
+#                author=author.key().name() if author else author,
+                re=re,
+                ip=ip or "",
+                website=website or None,
+                content=content or "",
+                hascheck=hascheck,
+                commenttype=commenttype )
+        
+        return db.put(c)
+
+    @classmethod
+    def id(cls, comment_ids):
+        return cls.get_by_id(comment_ids)
+
+    @classmethod
+    def by_post(cls, post, plen=50, cursor=None):
+        return cls.cursorfetch(cursor, plen=plen, func=lambda x: x.filter("belong =", post))
 
 class Attachment(BaseModel):
     beuse = db.ReferenceProperty(Post, collection_name="attachments")
