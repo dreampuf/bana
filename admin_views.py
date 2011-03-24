@@ -5,6 +5,8 @@
 
 import logging
 
+from google.appengine.api import memcache
+
 from config import config
 from common import BlogHandler, AdminHandler, randstr, json, realurl, attach_event 
 from model import run_in_transaction, Rollback, Category, Post, PostSignals, Tag
@@ -78,7 +80,8 @@ class AdminModifyPostHandler(AdminHandler):
                    "post.url": p.url,
                    "post.tags": ",".join(p.tags),
                    "post.keyword": ",".join(p.keyword),
-                   "post.content": p.content, }
+                   "post.content": p.content,
+                   "post.format": p.format }
         self.render("admin_post_editor.html", context)
 
     def post(self, post_id):
@@ -98,6 +101,7 @@ class AdminModifyPostHandler(AdminHandler):
         tags = list(cur_tags)
 
         try:
+            old_realurl = p.realurl
             pkey = Post.modify(post_id=post_id,
                             title=pdict.get("post.title"),
                             category_keyname=pdict.get("post.category"),
@@ -108,7 +112,8 @@ class AdminModifyPostHandler(AdminHandler):
                             content=pdict.get("post.content"),
                             format=pdict.get("post.format") )
             p = Post.id(pkey.id())
-            p.realurl = realurl(p)
+            if p.realurl != old_realurl:
+                p.realurl = realurl(p)
             p.put()
         except Exception, ex:
             logging.info(ex)
@@ -205,6 +210,17 @@ class AdminConfigHandler(AdminHandler):
 
 
 
+class AdminCronHandler(AdminHandler):
+    def get(self, instruct=None):
+        if instruct == "view_counter":
+            view = memcache.get("views")
+            if view != None:
+                for path,v in view.items():
+                    post = Post.get_by_path(path)
+                    if post:
+                        post.views += v
+                        post.put()
+                memcache.delete("views", namespace="Front")
 
 
 

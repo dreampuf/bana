@@ -9,6 +9,7 @@ posturl = _context.get("post.url")
 posttags = _context.get("post.tags")
 postkeyword = _context.get("post.keyword")
 postcontent = _context.get("post.content")
+postformat = _context.get("post.format")
 
 ?>
 <?py include("errors.html") ?>
@@ -153,7 +154,7 @@ $("#create_category").click(function(){
             <hr>
         </div>
         <textarea id="editor" name="post.content">#{ postcontent }</textarea>
-        <input type="hidden" name="post.format" value="#{ config.POST_EDITOR }">
+        <input type="hidden" name="post.format" value="#{ postformat if postformat else config.POST_EDITOR }">
         <div class="submit">
             <div class="outbl sbm">
             <input type="submit" id="submit">

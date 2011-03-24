@@ -22,8 +22,7 @@ class TempTable(BaseModel):
 class BaseModelTest(unittest.TestCase):
     def setUp(self):
 
-        for i in TempTable.all():
-            i.delete()
+        db.delete(TempTable.all().fetch(500))
 
         #init data
         ls = []
@@ -32,26 +31,21 @@ class BaseModelTest(unittest.TestCase):
         db.put(ls)
 
     def dearDown(self):
-        for i in TempTable.all():
-            i.delete()
+        db.delete(TempTable.all().fetch(500))
         logging.info("被执行拉")
         
     def testFetch(self):
         index = 1 
         ls = TempTable.fetch_page(index, 20)
-        logging.info(ls)
         for n, i in enumerate(ls.data):
             self.assertEquals(i.tkey, n)
 
-        cursor = TempTable.cursor()
-        self.assertTrue(not cursor is None)
-        logging.info(cursor)
+        ls, cursor = TempTable.cursorfetch(None)
+        nls, ncursor = TempTable.cursorfetch(cursor, plen=500)
+        nnls, nncursor = TempTable.cursorfetch(ncursor, plen=500)
+
         
         self.assertEquals(TempTable.fetch_page(10).data[0].tkey, 180)
-
-        als = TempTable.cursorfetch(cursor)
-        for n, i in enumerate(als):
-            self.assertEquals(i.tkey, ls.data[n].tkey + 20)
 
 
     def testPut(self):

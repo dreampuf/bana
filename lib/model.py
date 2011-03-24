@@ -71,6 +71,9 @@ class Setting(Model):
             opt=Setting.get_by_key_name(name)
             result = pickle.loads(str(opt.value))
 
+            if isinstance(result, basestring):
+                result = result.encode("utf-8")
+
             if useMemoryCache:
                 _settingcache[name] = result
             memcache.set("setting.%s" % name, result, 0)
@@ -172,8 +175,8 @@ class BaseModel(Model):
         db.delete(vals)
 
     @classmethod
-    def fetch_page(cls, p, plen = 20, func=None):
-        total = cls.total(func)
+    def fetch_page(cls, p, plen = 20, func=None, realtime_count=False):
+        total = cls.total(func, realtime_count=realtime_count)
         n = total / plen
         if total % plen != 0:
             n = n + 1
@@ -201,7 +204,10 @@ class BaseModel(Model):
     #    return None
 
     @classmethod
-    def total(cls, func=None):
+    def total(cls, func=None, realtime_count=False):
+        if realtime_count:
+            return func(cls.all()).count(None) if func else cls.all().count(None) 
+
         if func:
             tname = "%s_%s::%s" % (TABLE_COUNT_TAG_PRE, cls.__name__, func2str(func)) 
         else:
@@ -210,7 +216,7 @@ class BaseModel(Model):
         tval = Setting.get(tname, useMemoryCache=False)
         if tval == None:
             logging.info("calc the %s total count" % cls.__name__)
-            tval = cls.all().count(None) if func == None else func(cls.all()).count(None)
+            tval = func(cls.all()).count(None) if func else cls.all().count(None) 
             Setting.set(tname, tval, False)
         return tval
     
@@ -334,6 +340,7 @@ class PostFormat(object):
 
 class PostSignals(object):
     New = "Post.New"
+    Modify = "Post.Modify"
 
 class Post(BaseModel):
     """ url 只是存在一个可能的别名,实际匹配时则直接匹配realurl """
@@ -398,6 +405,9 @@ class Post(BaseModel):
         p.content=content
         p.format=format
         p.enablecomment=enablecomment
+
+        deferred.defer(sendsignal, signal=PostSignals.Modify, post=p)
+
         return db.put(p)
 
     @classmethod
@@ -415,11 +425,13 @@ class CommentType(object):
     TRACKBACK = "trackback"
     PINGBACK = "pingback"
 
+class CommentSignals(object):
+    New = "Comment.New"
+
 class Comment(BaseModel):
     commenttype = db.StringProperty(default=CommentType.COMMENT)
 
     belong = db.ReferenceProperty(Post, collection_name="comments")
-#    author = db.ReferenceProperty(User, collection_name="comments")#
     re = db.SelfReferenceProperty(collection_name="children")
     content = db.TextProperty()
     created = db.DateTimeProperty(auto_now_add=True)
@@ -433,10 +445,7 @@ class Comment(BaseModel):
     @with_transaction
     def new(cls, belong, nickname, email, re=None, ip=None, website=None, content=None, hascheck=True, commenttype=CommentType.COMMENT):
         #belong = Post.id(belong)
-#        author = User.by_email(email)
         email = toEmail(email)
-#        if author:
-#            author = User.by_email(author)
         if re:
             re = cls.id(re)
         if website:
@@ -446,7 +455,6 @@ class Comment(BaseModel):
                 belong=belong,
                 nickname=nickname, #author.nickname if author else nickname,
                 email=email,#author.key().name() if author else email,
-#                author=author.key().name() if author else author,
                 re=re,
                 ip=ip or "",
                 website=website or None,
@@ -454,6 +462,8 @@ class Comment(BaseModel):
                 hascheck=hascheck,
                 commenttype=commenttype )
         
+        deferred.defer(sendsignal, signal=CommentSignals.New, comment=c)
+
         return db.put(c)
 
     @classmethod

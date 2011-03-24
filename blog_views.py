@@ -3,22 +3,26 @@
 # discription: blog_views 
 # author: dreampuf
 
-import os, sys, logging, traceback
+import os, sys, logging, traceback, urllib
+
 CURPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.join(CURPATH, "lib"))
 
+from google.appengine.api import memcache
 from django.dispatch import dispatcher
 
 from config import config
 from model import Post
+from model import PostStatus
 from model import PostSignals
 from model import Key 
 from model import User 
 from model import Comment 
+from model import CommentSignals
 from model import Rollback 
 from common import BlogHandler, attach_event
 
-INDEXPOSTFILTER = lambda x:x.order("-created")
+INDEXPOSTFILTER = lambda x:x.filter("status =", PostStatus.NORMAL).order("-created")
 def rtotal_Index(*args, **kw):
     Post.refresh_total(func=INDEXPOSTFILTER)
 attach_event(func=rtotal_Index, signal=PostSignals.New)
@@ -43,7 +47,9 @@ class CategoryHandler(BlogHandler):
             #TODO 404
             pass
         
-        pager = Post.fetch_page(p, func=lambda x:x.filter("category =", cate).order("-created"))
+        pager = Post.fetch_page(p, 
+                                func=lambda x:x.filter("category =", cate).filter("status =", PostStatus.NORMAL).order("-created"),
+                                realtime_count=True)
 
         context = {"pager": pager}
         self.render("index.html", context)
@@ -77,18 +83,37 @@ class CommentHandler(BlogHandler):
 
         self.redirect("/" + post.realurl)
 
+def view_counter(handler):
+    def view_handler(self, path):
+        url = urllib.unquote(path)
+
+        view = memcache.get("views")
+        if view == None:
+            view = {}
+        if not url in view:
+            view[url] = 0
+        view[url] += 1
+        memcache.set("views", view)
+        return handler(self, path)
+    return view_handler
+
+VIEWCOMMENTFILTER = lambda x: x.filter("hascheck =", True).order("created") if config.COMMENT_NEEDLOGINED else x.order("created")
+def rtotal_Comment(*args, **kw):
+    Comment.refresh_total(func=VIEWCOMMENTFILTER)
+attach_event(func=rtotal_Comment, signal=CommentSignals.New)
 
 class ViewHandler(BlogHandler): # 大苦逼处理类
+    @view_counter
     def get(self, path):
         gdict = self.GET
+        path = urllib.unquote(path) 
         post = Post.get_by_path(path)
         if post:
-            n = gdict.get("n", None)
-            post_comments, post_next_cursor = Comment.by_post(post, plen=3, cursor=n)
+            p = gdict.get("p", None)
+            p = int(p) if p and p.isdigit() else 1
+            post_comments = Comment.fetch_page(p, config.COMMENT_PAGE_COUNT, func=VIEWCOMMENTFILTER)
             context = {"post": post,
-                       "post_comments": post_comments, 
-                       "post_last_cursor": n,
-                       "post_next_cursor": post_next_cursor }
+                       "post_comments": post_comments, } 
             self.render("single.html", context)
             return 
 

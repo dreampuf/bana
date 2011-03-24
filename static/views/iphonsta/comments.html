@@ -1,116 +1,97 @@
-<?php
-/**
- * @package WordPress
- */
-
-// Do not delete these lines
-	if (isset($_SERVER['SCRIPT_FILENAME']) && 'comments.php' == basename($_SERVER['SCRIPT_FILENAME']))
-		die ('Please do not load this page directly. Thanks!');
-	
-	if ( post_password_required() ) { ?>
-		<p class="nocomments"><?php _e('This post is password protected. Enter the password to view comments.'); ?></p> 
-	<?php
-		return;
-	}
+<?py #@ARGS post, comments ?>
+<?py
+post_id = post.key().id() if post else -1
+curr_ukey = _context.get("curr_ukey")
+viewer = User.by_email(curr_ukey) if curr_ukey else None
 ?>
+<?py if comments.count :?>
+    <div class="comments">
+    </div>
 
-<!-- You can start editing here. -->
-<?php if ( have_comments() ) : ?>
-    <a name="comments"></a>
+    <ol class="commentlist">
+        <?py for i in comments.data : ?>
+        <li class="comment even">
+            <div class="comment-author-info"><a class="comment-author" id="comment-#{ i.key().id() }"
+                <?py if i.website: ?>
+                     href="${ i.website }"
+                <?py #endif ?>
+                    >${ i.nickname }</a> @ ${ FormatTime(i.created, config.DATEMINUTE_FORMAT) }
+                 <a href="#respond">[回复]</a>
+                <div class="hr"></div>
+            </div>
+            <div>#{ i.content }</div>
+        </li>
+        <?py #endfor ?>
+    </ol>
 
-	<div class="navigation">
-		<div class="alignleft"><?php previous_comments_link() ?></div>
-		<div class="alignright"><?php next_comments_link() ?></div>
-	</div>
-
-	<ol class="commentlist">
-
-
-
-		<?php foreach ($comments as $comment) : ?>
-            <li <?php comment_class(); ?> id="comment-<?php comment_ID() ?>">
-            <div class="comment-author-info"><span class="comment-author"><?php comment_author() ?></span>, <?php comment_date('d F, Y') ?><?php edit_comment_link(__("Edit This"), ' | '); ?></div>
-            <?php comment_text() ?>
-            <div class="hr"></div>
-            </li>
-        
-        <?php endforeach; ?>
-
-
-
-	</ol>
-
-	<div class="navigation">
-		<div class="alignleft"><?php previous_comments_link() ?></div>
-		<div class="alignright"><?php next_comments_link() ?></div>
-	</div>
- <?php else : // this is displayed if there are no comments so far ?>
-
-	<?php if ( comments_open() ) : ?>
-		<!-- If comments are open, but there are no comments. -->
-
-	 <?php else : // comments are closed ?>
-		<!-- If comments are closed. -->
-		<p class="nocomments"><?php _e('Comments are closed.'); ?></p>
-
-	<?php endif; ?>
-<?php endif; ?>
-
-
-<?php if ( comments_open() ) : ?>
-
-<div id="respond">
-
-
-<?php if ( is_user_logged_in() ) : ?>
-
-<div class="login"><?php printf(__('Logged in as <a href="%1$s">%2$s</a>.'), get_option('siteurl') . '/wp-admin/profile.php', $user_identity); ?> <a href="<?php echo wp_logout_url(get_permalink()); ?>" title="<?php _e('Log out of this account'); ?>"><?php _e('Log out &raquo;'); ?></a></div>
-
-<?php endif; ?>
-
-
-
-
-
-<div id="cancel-comment-reply"> 
-	<small><?php cancel_comment_reply_link() ?></small>
-</div> 
-<?php if ( is_user_logged_in() ) : ?>
-
-
-<?php else : ?>
-
-
-
-<div id="uit">
-  <input type="text" name="author" id="author"  onfocus="if(this.value=='Name') this.value='';" onblur="if(this.value=='') this.value='Name';" value="Name" size="22" tabindex="1" <?php if ($req) echo "aria-required='true'"; ?> />
-  <input type="text" name="email" id="email"  onfocus="if(this.value=='E-Mail: (required)') this.value='';" onblur="if(this.value=='') this.value='E-Mail: (required)';" value="E-Mail: (required)" size="22" tabindex="2" <?php if ($req) echo "aria-required='true'"; ?> />
-    
-<!--    <div class="outbl"><input type="text" name="url" id="url"  onfocus="if(this.value=='Website URL') this.value='';" onblur="if(this.value=='') this.value='Website URL';" value="Website URL" size="22" tabindex="3" /></div>-->
-</div>
-<?php endif; ?>
-
-<?php if ( get_option('comment_registration') && !is_user_logged_in() ) : ?>
-<p><?php printf(__('You must be <a href="%s">logged in</a> to post a comment.'), wp_login_url( get_permalink() )); ?></p>
-<?php else : ?>
-
-<form action="<?php echo get_option('siteurl'); ?>/wp-comments-post.php" method="post" id="commentform">
-
-<textarea name="comment" id="comment" cols="100%" rows="10" tabindex="4"></textarea>
-
-
-
-<!--<p><small><?php printf(__('<strong>XHTML:</strong> You can use these tags: <code>%s</code>'), allowed_tags()); ?></small></p>-->
-
-
-<div class="submit"><div class="outbl sbm"><input name="submit" type="submit" id="submit" tabindex="5" value="Submit comment" /></div>
-<?php comment_id_fields(); ?> 
-</div>
-<?php do_action('comment_form', $post->ID); ?>
-
-</form>
-
-<?php endif; // If registration required and not logged in ?>
-</div>
-
-<?php endif; // if you delete this the sky will fall on your head ?>
+    <div class="comments">
+    <?py if comments.prev :?>
+    <div id="cmnts"><a href="#{{ config.BLOG_PATH }}#{ post.realurl }?p=#{ comments.prev }">上一页</a></div>
+    <?py #endif ?>
+    <?py if comments.index < comments.last :?>
+    <div id="cmnts-l"><a href="#{{ config.BLOG_PATH }}#{ post.realurl }?p=#{ comments.next }">下一页</a></div>
+    <?py #endif ?>
+    </div>
+<?py else: ?>
+    <div class="comments">
+        <div id="cmnts">
+            没有评论
+        </div>
+    </div>
+<?py #endif ?>
+    <?py if post.enablecomment and config.ENABLE_COMMENT :?>
+    <div id="respond">
+        <div id="uit">
+        <?py if config.COMMENT_NEEDLOGINED : ?>
+                    <p>您需要<a href="/login/">登录</a>您的账号才能进行评论。</p>
+        <?py else: ?>
+        <?py
+        author = ""
+        email = ""
+        url = ""
+        comment = ""
+        ?>
+        <form action="#{{ config.BLOG_PATH }}comment/#{ post_id }/" method="post" id="commentform">
+            <?py if viewer: ?> 
+            <p>随时待命,请${ viewer.nickname }回复: </p>
+            <?py else: ?>
+            <p><input name="author" id="author" rel="昵称(必填)" type="text" value="#{ author }"></p>
+            <p><input name="email" id="email" rel="电子邮件(必填)" type="text" value="#{ email }"></p>
+            <p><input name="url" id="url" rel="个人主页地址(选填)" type="text" value="#{ url }"></p>
+            <?py #endif ?>
+            <p><textarea name="comment" id="comment" cols="100%" rows="10" ></textarea></p>
+            <div class="submit"><div class="outbl sbm"><input name="submit" type="submit" id="submit" value="回复"/></div></div>
+        </form>
+        <script type="text/javascript">
+        $(function(){
+        $.each($("form").find("input, textarea"), function(n, i){
+            i = $(i);
+            if(!i.attr("rel"))
+                return;
+            i.attr("title", i.attr("rel"));
+            i.blur(function(e){
+                if($.trim(i.val()) == "") {
+                    i.val(i.attr("rel"));
+                }
+            }).focus(function(e){
+                if($.trim(i.val()) == i.attr("rel")) {
+                    i.val("");
+                }
+            });
+            i.val(i.val() || i.attr("rel"));
+        }); 
+        $("form").submit(function(e){
+            e = $(e.target);
+            $.each(e.find("[rel]"), function(n, i){
+                i = $(i);
+                if($.trim(i.val()) == i.attr("rel")) {
+                    i.val("");
+                }
+            });
+        });
+        });
+        </script>
+        <?py #endif ?>
+        </div><!--uid-->
+    </div><!--respond-->
+    <?py #endif ?>

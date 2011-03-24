@@ -3,7 +3,7 @@
 # discription: admin_url 
 # author: dreampuf
 
-import sys, os 
+import sys, os, logging 
 CURPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.join(CURPATH, "lib"))
 
@@ -17,8 +17,10 @@ from admin_views import AdminConfigHandler
 from admin_views import AdminCategoryHandler
 from admin_views import AdminPostHandler
 from admin_views import AdminModifyPostHandler
+from admin_views import AdminCronHandler
 import que
 from common import session_middleware
+
 
 def main():
     BLOG_ADMIN_PATH = config.BLOG_ADMIN_PATH
@@ -29,6 +31,7 @@ def main():
     (BLOG_ADMIN_PATH + "login/", LoginHandler), 
     (BLOG_ADMIN_PATH + "config/", AdminConfigHandler), 
     (BLOG_ADMIN_PATH + "category/", AdminCategoryHandler), 
+    (BLOG_ADMIN_PATH + "cron/(?P<instruct>\w+)/", AdminCronHandler), 
     (BLOG_ADMIN_PATH, AdminIndexHandler) ])
 
     util.run_wsgi_app(session_middleware(application))

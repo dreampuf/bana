@@ -16,7 +16,7 @@ class CommentStatus(object):
 
 class config(object):
     VERSION = 2.0
-    CURPATH = os.path.join(os.path.split(os.path.abspath(sys.argv[0]))[0], "..")
+    CURPATH = os.path.join(os.path.split(os.path.abspath(__file__))[0], "..")
     CHARSET = "utf-8"
     LANGUAGE = "zh-CN"
     

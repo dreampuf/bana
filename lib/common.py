@@ -26,9 +26,12 @@ from gaesession import SessionMiddleware, get_current_session
 from model import User
 from model import Category
 from model import Post 
+from model import PostSignals 
 
 pjoin = os.path.join
-tplengine = tenjin.Engine(path=[pjoin("static", "views", "iphonsta")], preprocess=True)  
+tplengine = tenjin.gae.Engine(path=[pjoin("static", "views", "iphonsta")], preprocess=True)  
+tplengine_cache_store = tenjin.gae.helpers.fragment_cache.store
+tplengine_cache_prefix = tenjin.gae.helpers.fragment_cache.prefix
 
 COOKIE_KEY = "0883ba4c4fd211e0a727485b39b890e1"   #this is your code 
 def session_middleware(app):
@@ -40,20 +43,38 @@ def session_middleware(app):
 def attach_event(func, signal):
     dispatcher.connect(func, signal=signal)
 
+def rPost_tpl_content(post, *args, **kw):
+    tplengine_cache_store.set("%spost:content:%s" % (tplengine_cache_prefix, post.key().id()),
+                              format_content(post.content, post.format),
+                              config.POST_CACHE_TIME )
+attach_event(rPost_tpl_content, PostSignals.Modify)
+
 def format_content(content, format="html"):
     if format == "html":
         return content
     elif format == "rest":
-        from docutils.core import publish_parts
+        try:
+            from docutils.core import publish_parts
+        except ImportError, ex:
+            sys.path.insert(0, pjoin(config.CURPATH, "lib"))
+            from docutils.core import publish_parts
         doc = publish_parts(content ,writer_name='html', settings_overrides= {"file_insertion_enabled": 0,
                                                                               "raw_enabled": 0,
                                                                               "_disable_config": 1, })
         return doc["body"]
     elif format == "markdown":
-        from markdown import markdown
+        try:
+            from markdown import markdown
+        except ImportError, ex:
+            sys.path.insert(0, pjoin(config.CURPATH, "lib"))
+            from markdown import markdown
         return markdown(content, output_format="html4")
     elif format == "ubbcode":
-        from postmarkup import render_bbcode
+        try:
+            from postmarkup import render_bbcode
+        except ImportError, ex:
+            sys.path.insert(0, pjoin(config.CURPATH, "lib"))
+            from postmarkup import render_bbcode
         return render_bbcode(content, encoding=config.CHARSET, paragraphs=True)
 
 def randstr(start=5, end=10, case=string.lowercase):

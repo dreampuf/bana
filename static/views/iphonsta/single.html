@@ -2,109 +2,24 @@
 include("header.html")
 post = _context.get("post")
 ?>
-<div class="pagetitle">${ post.title if post else "" }</div>
 <div id="cnt">
 <?py if post: ?>
 <?py
 post_id = post.key().id()
-curr_ukey = _context.get("curr_ukey")
-viewer = User.by_email(curr_ukey) if curr_ukey else None
 ?>
     <div class="art">
+        <h1>${ post.title if post else "" }</h1>
         <p class="postmetadata">${ FormatTime(post.created, config.DATEMINUTE_FORMAT) } &nbsp;&nbsp; category:#{ post.category.title or '无'} &nbsp;&nbsp; tags:${ ",".join(post.tags) }
         </p>
         <div class="entry">
-    <?py for _ in cache_as('post:%s' % post_id, config.POST_CACHE_TIME): ?>
+    <?py for _ in cache_as('post:content:%s' % post_id, config.POST_CACHE_TIME): ?>
     #{{ format_content(post.content, post.format) }}
     <?py #endfor ?>
         </div>
     </div>
-<?py if len(post_comments): ?>
-    <div id="commentlist">
-    <?py if _context.get("post_last_cursor"):?>
-    <p class="cmnts"><a href="#{{ config.BLOG_PATH }}#{ post.realurl }?p=#{ post_last_cursor }">上一页</a></p>
-    <?py #endif ?>
-    <?py if _context.get("post_next_cursor"):?>
-    <p class="cmnts-l"><a href="#{{ config.BLOG_PATH }}#{ post.realurl }?n=#{ post_next_cursor }">下一页</a></p>
-    <?py #endif ?>
-        <?py for i in post_comments : ?>
-        <li>
-            <div class="comment-author-info"><a id="comment-id-#{ i.key().id() }"
-                <?py if i.website: ?>
-                     href="${ i.website }"
-                <?py #endif ?>
-                    >${ i.nickname }</a> @ ${ FormatTime(i.created) }
-                 <a href="#respond">[回复]</a>
-            </div>
-            <div>#{ i.content }</div>
-        </li>
-        <?py #endfor ?>
-    </div>
-<?py else: ?>
-    <div class="comments">
-        <div id="cmnts">
-            没有评论
-        </div>
-    </div>
-<?py #endif ?>
-    <div id="respond">
-        <div id="uit">
-<?py
-?>
-    <?py if post.enablecomment and config.ENABLE_COMMENT :?>
-        <?py if config.COMMENT_NEEDLOGINED : ?>
-                    <p>您需要<a href="/login/">登录</a>您的账号才能进行评论。</p>
-        <?py else: ?>
-        <?py
-        author = ""
-        email = ""
-        url = ""
-        comment = ""
-        ?>
-        <form action="#{{ config.BLOG_PATH }}comment/#{ post_id }/" method="post" id="commentform">
-            <?py if viewer: ?> 
-            <p>随时待命,请${ viewer.nickname }回复: </p>
-            <?py else: ?>
-            <p><input name="author" id="author" rel="昵称(必填)" type="text" value="#{ author }"></p>
-            <p><input name="email" id="email" rel="电子邮件(必填)" type="text" value="#{ email }"></p>
-            <p><input name="url" id="url" rel="个人主页地址(选填)" type="text" value="#{ url }"></p>
-            <?py #endif ?>
-            <p><textarea name="comment" id="comment" cols="100%" rows="10" ></textarea></p>
-            <div class="submit"><div class="outbl sbm"><input name="submit" type="submit" id="submit" value="回复"/></div></div>
-        </form>
-        <script type="text/javascript">
-        $(function(){
-        $.each($("form").find("input, textarea"), function(n, i){
-            i = $(i);
-            if(!i.attr("rel"))
-                return;
-            i.attr("title", i.attr("rel"));
-            i.blur(function(e){
-                if($.trim(i.val()) == "") {
-                    i.val(i.attr("rel"));
-                }
-            }).focus(function(e){
-                if($.trim(i.val()) == i.attr("rel")) {
-                    i.val("");
-                }
-            });
-            i.val(i.val() || i.attr("rel"));
-        }); 
-        $("form").submit(function(e){
-            e = $(e.target);
-            $.each(e.find("[rel]"), function(n, i){
-                i = $(i);
-                if($.trim(i.val()) == i.attr("rel")) {
-                    i.val("");
-                }
-            });
-        });
-        });
-        </script>
-        <?py #endif ?>
-    <?py #endif ?>
-        </div><!--uid-->
-    </div><!--respond-->
+
+    <?py include("comments.html", post=post, comments=post_comments) ?>
+
 <?py else: ?>
             <h2 class="center"> 查无此页 </h2>
             <p class="center"> 经过专家考证.没有此页 </p>
