@@ -1,7 +1,0 @@
-1.0 - Initial release [WPSHOWER.com]
-
-1.1 - WP 3.0 mod by mijk [mijk.bee@gmail.com]
-		- modified fuctions + single.php (added wp post thumbnail support (auto-resizing), custom fields for featured images are now obsolete)
-		- added wp_footer(); to footer file
-		- fixed logo link to blog homepage
-		- modified archive.php (added wp support, modified loops which were not properly displaying featured images and excerpts)
