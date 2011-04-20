@@ -1,30 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?PY base_url = MAJOR_HOST_URL + BLOG_HOME_RELATIVE_PATH ?>
+<?py 
+base_url = config.BASEURL
+owner = User.by_email(config.OWNER)
+feed_summary = config.FEED_SUMMARY
+post_cache_time = config.POST_CACHE_TIME
+?>
 <feed xmlns="http://www.w3.org/2005/Atom"
-    xml:lang="#{{LANGUAGE}}"
-    xml:base="#{{base_url}}">
-    <title>${{BLOG_TITLE}}</title>
-    <id>#{{BLOG_FEED_URL}}</id>
-    <subtitle>${{BLOG_DESCRIPTION}}</subtitle>
-    <link href="#{{base_url}}" rel="alternate" type="text/html"/>
-    <link href="#{{BLOG_FEED_URL}}" rel="self"/>
-<?PY for hub in HUBS: ?>
-    <link rel="hub" href="#{{hub}}"/>
+    xml:lang="#{{ config.LANGUAGE }}"
+    xml:base="#{ base_url }">
+    <title>${{ config.TITLE }}</title>
+    <id>#{{ config.FEED_URL}}</id>
+    <subtitle>${{ config.DESCRIPTION }}</subtitle>
+    <link href="#{ base_url }" rel="alternate" type="text/html"/>
+    <link href="#{{ config.FEED_URL }}" rel="self"/>
+<?PY for hub in config.XML_RPC_ENDPOINT: ?>
+    <link rel="hub" href="#{{ hub }}"/>
 <?PY #endfor ?>
-    <updated>#{last_updated}</updated>
+    <updated>#{ posts[0].date_created }</updated>
     <author>
-        <name>${{BLOG_AUTHOR}}</name>
+        <name>${ owner.nickname }</name>
     </author>
-<?py for article in articles: ?>
+<?py for post in posts: ?>
     <entry>
-        <link href="#{article.quoted_url()}"/>
-        <id>#{{base_url}}article/#{article.key().id()}</id>
-        <title>${article.title}</title>
-        <content type="html">${article.html_content() if OUTPUT_FULLTEXT_FOR_FEED else article.summary}</content>
+        <link href="#{ base_url }/#{ post.realurl }"/>
+        <id>#{ base_url }/#{ post.realurl }</id>
+        <title>${ post.title }</title>
+        <content type="html">    
+    <?py for _ in cache_as('post:content:%s' % post.key().id(), post_cache_time): ?>
+    #{ format_content(post.content, post.format) }
+    <?py #endfor ?>
+        </content>
+
         <author>
-            <name>${{BLOG_AUTHOR}}</name>
+            <name>${ post.author.nickname }</name>
         </author>
-        <updated>#{iso_time_format(article.mod_time)}</updated>
+<?py p_date_modify = post.date_modify ?>
+        <updated>#{ ISO_FORMAT( p_date_modify )}</updated>
     </entry>
 <?py #endfor ?>
 </feed>

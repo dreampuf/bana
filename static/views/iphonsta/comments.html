@@ -3,6 +3,7 @@
 post_id = post.key().id() if post else -1
 curr_ukey = _context.get("curr_ukey")
 viewer = User.by_email(curr_ukey) if curr_ukey else None
+dateminiute_format = config.DATEMINUTE_FORMAT
 ?>
 <?py if comments.count :?>
     <div class="comments">
@@ -15,7 +16,7 @@ viewer = User.by_email(curr_ukey) if curr_ukey else None
                 <?py if i.website: ?>
                      href="${ i.website }"
                 <?py #endif ?>
-                    >${ i.nickname }</a> @ ${ FormatTime(i.created, config.DATEMINUTE_FORMAT) }
+                    >${ i.nickname }</a> @ ${ FormatTime(i.date_created, dateminiute_format) }
                  <a href="#respond">[回复]</a>
                 <div class="hr"></div>
             </div>

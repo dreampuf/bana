@@ -29,9 +29,12 @@ from model import Post
 from model import PostSignals 
 
 pjoin = os.path.join
-tplengine = tenjin.gae.Engine(path=[pjoin("static", "views", "iphonsta")], preprocess=True)  
+tplengine = tenjin.Engine(path=[pjoin("static", "views"), pjoin("static", "views", "iphonsta")], preprocess=True)  
 tplengine_cache_store = tenjin.gae.helpers.fragment_cache.store
 tplengine_cache_prefix = tenjin.gae.helpers.fragment_cache.prefix
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+tenjin.logger = logger 
 
 COOKIE_KEY = "0883ba4c4fd211e0a727485b39b890e1"   #this is your code 
 def session_middleware(app):
@@ -69,7 +72,7 @@ def format_content(content, format="html"):
             sys.path.insert(0, pjoin(config.CURPATH, "lib"))
             from markdown import markdown
         return markdown(content, output_format="html4")
-    elif format == "ubbcode":
+    elif format == "bbcode":
         try:
             from postmarkup import render_bbcode
         except ImportError, ex:
@@ -114,9 +117,9 @@ def gender_url(url, filter_func=lambda url: Post.get_by_path(url)):
 
 url_mapper = {
         "%category%": lambda p: p.category.title,
-        "%year%": lambda p: p.created.year,
-        "%month%": lambda p: p.created.month,
-        "%day%": lambda p: p.created.day,
+        "%year%": lambda p: p.date_created.year,
+        "%month%": lambda p: p.date_created.month,
+        "%day%": lambda p: p.date_created.day,
         "%title%": lambda p: p.title,
         "%url%": lambda p: p.url,
         "%author%": lambda p: p.author.nickname,
@@ -148,7 +151,7 @@ UTC = UTC()
 
 def FormatTime(dt, format=config.DATETIME_FORMAT):
     if dt:
-        return dt.strftime(format)
+        return dt.strftime(format.encode("utf-8"))
 
 def ParserTime(dtstr, format="%Y/%m/%d %H:%M:%S"):
     return datetime.datetime.strptime(dtstr, format)
@@ -168,9 +171,28 @@ def UTCtoLocal(dt):
     return dt.replace(tzinfo=UTC).astimezone(LOCAL_TIMEZONE) \
                 .replace(tzinfo=None) #fix in Google Engine App
 
+ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+def sitemap_time_format(dt):
+    if dt.tzinfo:
+        dt = dt.astimezone(UTC)
+    return dt.strftime('%Y-%m-%dT%H:%M:%S+00:00')
+
+def ISO_FORMAT(dt):
+    logging.info(repr(dt))
+    if dt.tzinfo:
+        return UTCtoLocal(dt).strftime(ISO_TIME_FORMAT)
+    else:
+        return dt.strftime(ISO_TIME_FORMAT)
+
+def iso_time_now():
+    return datetime.utcnow().strftime()
 
 class BaseHandler(que.RequestHandler):
+    def __init__(self, request, response, default_status=405):
+        #response.header["charset"] = config.CHARSET
+        response.set_content_type()
+        super(BaseHandler, self).__init__(request, response, default_status)
     def render(self, tplname, context=None, globals=None, layout=False):
         context = context or {}
         context["request"] = self.request
@@ -193,7 +215,7 @@ manage_categories = [
 class AdminHandler(BaseHandler):
     def __init__(self, request, response, default_status=405):
         self.session = get_current_session()        
-        self.session["curr_ukey"] = "soddyque@gmail.com"
+        #self.session["curr_ukey"] = "soddyque@gmail.com"
         soddy()
         super(AdminHandler, self).__init__(request, response, default_status=405)
 

@@ -71,7 +71,7 @@ class Setting(Model):
             opt=Setting.get_by_key_name(name)
             result = pickle.loads(str(opt.value))
 
-            if isinstance(result, basestring):
+            if isinstance(result, unicode):
                 result = result.encode("utf-8")
 
             if useMemoryCache:
@@ -243,7 +243,7 @@ def toEmail(val):
 class User(BaseModel):
     nickname = db.StringProperty(required=True)
     password = db.StringProperty(indexed=False)
-    created = db.DateTimeProperty(auto_now_add=True)
+    date_created = db.DateTimeProperty(auto_now_add=True)
 
     lastip = db.StringProperty(indexed=False)
     lastlogin = db.DateTimeProperty()
@@ -252,10 +252,13 @@ class User(BaseModel):
 
     @classmethod
     def check(cls, email, password):
-        user = cls.get_by_key_name(email)
-        if user and user.password == md5(password).hexdigest():
-            return user
-        return None
+        try:
+            user = cls.get_by_key_name(email)
+            if user and password and user.password == md5(password).hexdigest():
+                return user
+            return None
+        except:
+            return None
 
     @classmethod
     def by_email(cls, email):
@@ -353,8 +356,8 @@ class Post(BaseModel):
     category = db.ReferenceProperty(Category, collection_name="posts")
     author = db.ReferenceProperty(User, collection_name="posts")
     title = db.StringProperty()
-    created = db.DateTimeProperty(auto_now_add=True)
-    modify = db.DateTimeProperty(auto_now_add=True)
+    date_created = db.DateTimeProperty(auto_now_add=True)
+    date_modify = db.DateTimeProperty(auto_now_add=True)
     url = db.StringProperty() 
     keyword = db.StringListProperty() 
     content = db.TextProperty()
@@ -418,6 +421,10 @@ class Post(BaseModel):
     def get_by_path(cls, path, keys_only=False):
         return Post.all(keys_only=keys_only).filter("realurl =", path).get()
 
+    @classmethod
+    def get_feed_post(cls, feed_count=20):
+        return Post.all().filter("status =", PostStatus.NORMAL).order("-date_created").fetch(feed_count)
+
 
 
 class CommentType(object):
@@ -434,7 +441,7 @@ class Comment(BaseModel):
     belong = db.ReferenceProperty(Post, collection_name="comments")
     re = db.SelfReferenceProperty(collection_name="children")
     content = db.TextProperty()
-    created = db.DateTimeProperty(auto_now_add=True)
+    date_created = db.DateTimeProperty(auto_now_add=True)
     nickname = db.StringProperty()
     ip = db.StringProperty()
     website = db.LinkProperty()
@@ -482,7 +489,7 @@ class Attachment(BaseModel):
     filetype = db.StringProperty()
     filesize = db.IntegerProperty(default=0)
     content = db.BlobProperty()
-    created = db.DateTimeProperty(auto_now_add=True)
+    date_created = db.DateTimeProperty(auto_now_add=True)
 
     def setfiletype(self, filename):
         self.filetype = os.path.splitext(filename)[1][1:]

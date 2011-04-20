@@ -1,3 +1,4 @@
+- que.Request 中的redirect方法对于反向代理无效,需要修复.查看nignx转发获得的数据.是否有原始请求链接的,然后拼接.
 - Post的Comment只能向后翻页,如果可能,打算用缓存存储相应forward key.否则只能从第一开始.
   不过如果评论长度设置为很长的话,这个应该不会成为问题.
 - db.put一个实体后在同一个transaction db.get出来的对象,调用其put方法仍然会再次保存.

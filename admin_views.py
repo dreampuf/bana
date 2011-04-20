@@ -9,18 +9,28 @@ from google.appengine.api import memcache
 
 from config import config
 from common import BlogHandler, AdminHandler, randstr, json, realurl, attach_event 
-from model import run_in_transaction, Rollback, Category, Post, PostSignals, Tag
+from model import run_in_transaction, Rollback, Category, Post, PostSignals, Tag, User
 
-class LoginHandler(BlogHandler):
+class LoginHandler(AdminHandler):
     def get(self):
         self.render("login.html", 
-                   { "page_name": u"管理员登录",
-                    
-                    }) 
+                    {"page_name": u"管理员登录", }) 
 
 
     def post(self):
-        self.redirect(config.ADMINURL)
+        pdict = self.POST
+        
+        username = pdict.get("username")
+        password = pdict.get("password")
+        user = User.check(username, password)
+        if user:
+            self.session["curr_ukey"] = username 
+            self.redirect(config.BLOG_ADMIN_PATH)
+        else:
+            self.render("login.html", 
+                        {"page_name": u"管理员登录",
+                         "username": username, 
+                         "erros": u"错误的管理员账户或密码", }) 
 
 
 class AdminIndexHandler(AdminHandler):
@@ -32,8 +42,6 @@ class AdminIndexHandler(AdminHandler):
 class AdminCategoryHandler(AdminHandler):
 
     def post(self):
-        logging.info(self.request.POST)
-        self.set_content_type('json')
         pdict = self.request.POST
         action = pdict.get("action", "")
         
@@ -48,7 +56,7 @@ class AdminCategoryHandler(AdminHandler):
             else:
                 self.jsonout("ok")
 
-ADMINPOSTFILTER = lambda x:x.order("-created")
+ADMINPOSTFILTER = lambda x:x.order("-date_created")
 def rtotal_AdminPost(*arg, **kw):
     Post.refresh_total(func=ADMINPOSTFILTER)
 attach_event(func=rtotal_AdminPost, signal=PostSignals.New)

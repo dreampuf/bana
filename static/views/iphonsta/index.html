@@ -4,7 +4,7 @@
 <?py if len(pager.data): ?>
     <?py for i in pager.data: ?>
     <h2><a class="art" href="#{{ config.BLOG_PATH }}#{ i.realurl }">${ i.title }<br/>
-    <span class="info">#{ i.comments.count() }条评论 #{ i.views }次查看 ${ FormatTime(i.created) }</span></a></h2>
+    <span class="info">#{ i.comments.count() }条评论 #{ i.views }次查看 ${ FormatTime(i.date_created) }</span></a></h2>
     <?py #endfor ?>
     <?py include("pager.html", p=pager, argstyle="?p=") ?>
 <?py else: ?>

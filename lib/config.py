@@ -18,12 +18,13 @@ class config(object):
     VERSION = 2.0
     CURPATH = os.path.join(os.path.split(os.path.abspath(__file__))[0], "..")
     CHARSET = "utf-8"
-    LANGUAGE = "zh-CN"
+    LANGUAGE = "zh-CN" 
     
     APPID = os.environ["APPLICATION_ID"]
+    OWNER = _ConfigProperty("OWNER", "soddyque@gmail.com")
     BLOG_PATH = "/"
     BLOG_ADMIN_PATH = "/admin/"
-    DOMAIN = _ConfigProperty("DOMAIN", os.environ['HTTP_HOST'])                       #站点域名
+    DOMAIN = "huangxin.im"#_ConfigProperty("DOMAIN", os.environ['HTTP_HOST'])                       #站点域名
     TEMPLATE = _ConfigProperty("TEMPLATE", "iphonsta")
     POST_EDITOR = _ConfigProperty("POST_EDITOR", "")
     EDITOR_TYPE = ("html", "rest", "markdown", "bbcode")
@@ -42,8 +43,8 @@ class config(object):
     DATETIME_FORMAT = _ConfigProperty("DATETIME_FORMAT", "%Y-%m-%d %H:%M:%S")
     DATEMINUTE_FORMAT = _ConfigProperty("DATEMINUTE_FORMAT", "%Y-%m-%d %H:%M")
     
-    FEED_SRC = _ConfigProperty("FEED_SRC", "feed")
-    FEEDURL = "%s/%s/" % ( BASEURL, FEED_SRC)
+    FEED_SRC = _ConfigProperty("FEED_SRC", "feed/")
+    FEED_URL = "%s/%s" % ( BASEURL, FEED_SRC)
     FEED_NUMBER = _ConfigProperty("DIGIT_FEED_NUMBER_", 20)
     FEED_SUMMARY = _ConfigProperty("FEED_SUMMARY", False)
     FEED_COMMENT_COUNT = _ConfigProperty("FEED_COMMENT_COUNT", 5) 
