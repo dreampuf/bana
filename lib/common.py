@@ -5,11 +5,13 @@
 
 import cgi, os, logging, sys, string, random
 import datetime
+import urllib
 import wsgiref.handlers
 
 from google.appengine.api import memcache
 from google.appengine.ext import deferred
 from google.appengine.ext.webapp import util
+from google.appengine.api import urlfetch
 from django.utils import simplejson as json
 from django.dispatch import dispatcher
 
@@ -173,6 +175,17 @@ def UTCtoLocal(dt):
 
 ISO_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+def urlrequest(url, data=None, method=urlfetch.GET, headers=None):
+    if data:
+        data = urllib.urlencode(data)
+
+    if headers is None:
+        headers = {}
+    return urlfetch.fetch(url=url,
+                          payload=data,
+                          method=method,
+                          headers=headers).content
+
 def sitemap_time_format(dt):
     if dt.tzinfo:
         dt = dt.astimezone(UTC)
@@ -212,18 +225,31 @@ manage_categories = [
 
         ]
 
+manage_pages = [
+        { "url" : config.BLOG_ADMIN_PATH + "logout/", "title" : u"登出" },
+
+        ]
+
 class AdminHandler(BaseHandler):
     def __init__(self, request, response, default_status=405):
         self.session = get_current_session()        
         #self.session["curr_ukey"] = "soddyque@gmail.com"
-        soddy()
+        #soddy()
         super(AdminHandler, self).__init__(request, response, default_status=405)
+
+    def before(self, *args, **kw):
+        if not self.session.get("curr_ukey"):
+            self.redirect(config.BLOG_ADMIN_PATH + "login/")
+            return
+
+        super(AdminHandler, self).before(*args, **kw)
 
     def render(self, tplname, context=None, globals=None, layout=False):
         context = context or {}
         context["categories_title"] = u"管理"
         context["pages_title"] = u"其他"
         context["categories"] = manage_categories
+        context["pages"] = manage_pages
         
         super(AdminHandler, self).render(tplname, context, globals, layout)
 

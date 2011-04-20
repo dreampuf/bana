@@ -84,5 +84,12 @@ pages_title = _context.get("pages_title", "Pages")
 <?py #endfor ?>
         </ul>
         <ul id="top-menu2" style="display:none;">
-            <li class="cat-item"><a href="cc">退出<span>1</span></a></li>
+<?py pages = _context.get("pages", []) ?>
+<?py for i in pages: ?>
+<?py if i.get("num"): ?>
+<li class="cat-item"><a href="#{ i["url"] }">#{ i["title"] }<span>#{ i["num"] }</span></a></li>
+<?py else: ?>
+<li class="cat-item"><a href="#{ i["url"] }">#{ i["title"] }</a></li>
+<?py #endif ?>
+<?py #endfor ?>
         </ul>

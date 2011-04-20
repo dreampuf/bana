@@ -19,6 +19,7 @@ class aHandler(que.RequestHandler):
             self.set_content_type("text/javascript")
         elif filename.endswith("css"):
             self.set_content_type("text/css")
+        self.response.header["Cache-Control"] = "public, max-age=10800"
         tplpath = os.path.join( "..", "static", "views", "iphonsta")
         try:
             fs = open(os.path.join(tplpath, filename))

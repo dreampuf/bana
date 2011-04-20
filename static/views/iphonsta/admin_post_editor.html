@@ -116,8 +116,50 @@ $("#create_category").click(function(){
 
 });
 
+/*** Get Translate Content ****/
+last_focus = undefined;
+$("input[name='post.title'], input[name='category.title']").focusout(function(e){
+    e = $(e.target);
+    last_focus = e.attr("name");
+    last_focus = last_focus.split(".")[0] + ".url";
+    var value = e.val();
+    $.getScript("https://www.googleapis.com/language/translate/v2?" +
+        $.param(
+        {"key": "AIzaSyD3_KyaIis7pklJsNXt_isG7QzkTYPmf2w",
+        "q": value,
+        "source": "zh-CN",
+        "target": "en",
+        "callback":"urlnamecallback"}
+                ));
+});
+
+/*** Get KeyWord Content ***/
+$("#editor").focusout(function(e){
+    e = $(e.target);
+    if(!e.val())
+        return ;
+    
+    $.post("#{ config.BLOG_ADMIN_PATH }util/cross_domain/",
+           {"url": "http://lietu.com/demo/KeyWords.jsp",
+            "doc1": e.val() },
+           function(result) {
+               $("input[name='post.keyword']").val(result.join(", "));
+           }, "json");
+});
 
 });
+
+function urlnamecallback(result) {
+    result = result.data.translations[0].translatedText;
+    console.log(result);
+    result = result.replace(/&#(\d+);/, function(y,x){return String.fromCharCode(x);})
+                   .replace(/\s+/g, " ")
+                   .replace("?","")
+                   .replace("#","")
+                   .replace(/([^\w\s]|\?)\s/, "$1").split(" ").join("_");
+    if(result.substr() && last_focus)
+        $("input[name='" + last_focus + "']").val(result);
+}
 -->
 </script>
 <form action="." method="POST">

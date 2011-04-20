@@ -529,9 +529,11 @@ class RequestHandler(object):
 
         # if status not in (301, 302, 303, 307) or (status in (303, 307) and self.request.environ['SERVER_PROTOCOL'] == 'HTTP/1.0'):
             # status = 302
-        #TODO 需强化
         self.set_status(status)
-        self.header['Location'] = urljoin(self.request.url, url)
+        if 'HTTP_ORIGIN' in self.request.environ:
+            self.header['Location'] = urljoin(self.request.environ['HTTP_ORIGIN'], url)
+        else:
+            self.header['Location'] = urljoin(self.request.url, url)
         self.clear()
 
     def not_allowed(self):

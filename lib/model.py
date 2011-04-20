@@ -4,6 +4,7 @@
 # author: dreampuf
 
 import logging
+import traceback
 import cPickle as pickle
 from hashlib import md5
 
@@ -258,6 +259,7 @@ class User(BaseModel):
                 return user
             return None
         except:
+            logging.info(traceback.format_exc())
             return None
 
     @classmethod
