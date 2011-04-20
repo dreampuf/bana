@@ -3,10 +3,13 @@
 # discription: admin_views 
 # author: dreampuf
 
+import re
 import logging
 
+from google.appengine.api import urlfetch
+
 from config import config
-from common import BlogHandler, AdminHandler, randstr, json, realurl, attach_event 
+from common import BlogHandler, AdminHandler, randstr, json, realurl, attach_event, urlrequest
 from model import run_in_transaction, Rollback, Category, Post, PostSignals, Tag
 
 class LoginHandler(BlogHandler):
@@ -99,14 +102,14 @@ class AdminModifyPostHandler(AdminHandler):
 
         try:
             pkey = Post.modify(post_id=post_id,
-                            title=pdict.get("post.title"),
-                            category_keyname=pdict.get("post.category"),
-                            author_keyname=self.session.get("curr_ukey"),
-                            url=pdict.get("post.url"),
-                            keyword=pdict.get("post.keyword").split(","),
-                            tags=pdict.get("post.tags").split(","),#tags,
-                            content=pdict.get("post.content"),
-                            format=pdict.get("post.format") )
+                               title=pdict.get("post.title"),
+                               category_keyname=pdict.get("post.category").decode(config.CHARSET).encode("utf-8"),
+                               author_keyname=self.session.get("curr_ukey").decode(config.CHARSET).encode("utf-8"),
+                               url=pdict.get("post.url"),
+                               keyword=pdict.get("post.keyword").split(","),
+                               tags=pdict.get("post.tags").split(","),#tags,
+                               content=pdict.get("post.content"),
+                               format=pdict.get("post.format") )
             p = Post.id(pkey.id())
             p.realurl = realurl(p)
             p.put()
@@ -152,13 +155,13 @@ class AdminAddPostHandler(AdminHandler):
                 Tag.Incr(i)
 
             pkey = Post.new(title=pdict.get("post.title"),
-                         category_keyname=pdict.get("post.category"),
-                         author_keyname=self.session.get("curr_ukey"),
-                         url=pdict.get("post.url"),
-                         keyword=pdict.get("post.keyword").split(","),
-                         tags=tags,
-                         content=pdict.get("post.content"),
-                         format=pdict.get("post.format") )
+                            category_keyname=pdict.get("post.category").decode(config.CHARSET).encode("utf-8"),
+                            author_keyname=self.session.get("curr_ukey").decode(config.CHARSET).encode("utf-8"),
+                            url=pdict.get("post.url"),
+                            keyword=pdict.get("post.keyword").split(","),
+                            tags=tags,
+                            content=pdict.get("post.content"),
+                            format=pdict.get("post.format") )
             p = Post.id(pkey.id())
             p.realurl = realurl(p)
             Post.put(p)
@@ -203,7 +206,20 @@ class AdminConfigHandler(AdminHandler):
 
         self.redirect(".")
 
-
+class AdminUtilHandler(AdminHandler):
+    def post(self, action):
+        if action == "cross_domain":
+            data = urlrequest(self.POST.pop("url"), self.POST, urlfetch.POST).decode("utf-8")
+            split_start = data.find(u"关键词：<br>") + 16
+            #data = data[split_start:
+            #            data.find("</FONT>", split_start)]
+            #self.write(data)
+            #return
+            result = re.findall(u"([^</>\s]+?)\:.+<br", 
+                                data[split_start :
+                                     data.find(u"</FONT>", split_start)])
+            self.jsonout(result)
+            return                   
 
 
 

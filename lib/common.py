@@ -5,11 +5,13 @@
 
 import cgi, os, logging, sys, string, random
 import datetime
+import urllib
 import wsgiref.handlers
 
 from google.appengine.api import memcache
 from google.appengine.ext import deferred
 from google.appengine.ext.webapp import util
+from google.appengine.api import urlfetch
 from django.utils import simplejson as json
 from django.dispatch import dispatcher
 
@@ -147,6 +149,16 @@ def UTCtoLocal(dt):
     return dt.replace(tzinfo=UTC).astimezone(LOCAL_TIMEZONE) \
                 .replace(tzinfo=None) #fix in Google Engine App
 
+def urlrequest(url, data=None, method=urlfetch.GET, headers=None):
+    if data:
+        data = urllib.urlencode(data)
+
+    if headers is None:
+        headers = {}
+    return urlfetch.fetch(url=url,
+                          payload=data,
+                          method=method,
+                          headers=headers).content
 
 
 class BaseHandler(que.RequestHandler):

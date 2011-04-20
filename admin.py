@@ -17,6 +17,7 @@ from admin_views import AdminConfigHandler
 from admin_views import AdminCategoryHandler
 from admin_views import AdminPostHandler
 from admin_views import AdminModifyPostHandler
+from admin_views import AdminUtilHandler
 import que
 from common import session_middleware
 
@@ -29,6 +30,7 @@ def main():
     (BLOG_ADMIN_PATH + "login/", LoginHandler), 
     (BLOG_ADMIN_PATH + "config/", AdminConfigHandler), 
     (BLOG_ADMIN_PATH + "category/", AdminCategoryHandler), 
+    (BLOG_ADMIN_PATH + "util/(?P<action>[^/]+)/", AdminUtilHandler), 
     (BLOG_ADMIN_PATH, AdminIndexHandler) ])
 
     util.run_wsgi_app(session_middleware(application))
