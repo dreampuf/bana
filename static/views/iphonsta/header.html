@@ -20,10 +20,18 @@
     <link rel="alternate" type="text/xml" title="RSS .92" href="#{ config.FEED_URL }" />
     <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="#{ config.FEED_URL }" />
 <?py for i in config.HEAD_LINK :?>
-<?py     if i.endswith("js") :?> 
+<?py     if i.endswith("js"):?> 
+<?py         if i.startswith("http"): ?>
+<script type="text/javascript" src="#{ i }"></script>
+<?py         else: ?>
 <script type="text/javascript" src="#{ config.BASEURL + i }"></script>
+<?py         #endif ?>
 <?py     else: ?>
+<?py         if i.startswith("http"): ?>
+<link rel="stylesheet" href="#{ i }" type="text/css" media="screen" />
+<?py         else: ?>
 <link rel="stylesheet" href="#{ config.BASEURL + i }" type="text/css" media="screen" />
+<?py         #endif ?>
 <?py      #endif ?>
 <?py #end ?>
     <!-- <link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" /> -->
