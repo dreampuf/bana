@@ -1,6 +1,6 @@
 application: hxbana 
 version: 1
-runtime: python
+runtime: python39
 api_version: 1
 
 
@@ -20,30 +20,32 @@ handlers:
   static_dir: static/js
 
 - url: /template/.*
-  script: lib/template.py
+  script: auto
 
 - url: /test.*
 #  login: admin
-  script: lib/gaeunit.py
+  script: auto
 
 - url: /_ah/admin/.*
-  script: $PYTHON_LIB/google/appengine/ext/admin
+  script: auto
   login: admin
 
 - url: /_ah/queue/deferred
-  script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
+  script: auto
   login: admin
 
 - url: /mapreduce(/.*)?
-  script: $PYTHON_LIB/google/appengine/ext/mapreduce/main.py
+  script: auto
   login: admin
 
 - url: /_ah/info/.*
-  script: $PYTHON_LIB/google/appengine/tools/dev_appserver_info
+  script: auto
   login: admin
 
 - url: /admin/.*
-  script: admin.py
+  script: auto
 
 - url: .*
-  script: blog.py
+  script: auto
+
+entrypoint: gunicorn -b :$PORT main:app
